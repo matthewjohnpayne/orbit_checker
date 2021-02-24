@@ -47,35 +47,29 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
+    # Setting up connection object to PP's Query routines ...
+    dbConn = query_ids.QueryCurrentID()
+
     # Setting up a default array for development ...
     primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
         
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        pass
-        #primary_designations_list_of_dicts = query_ids.get_unpacked_primary_desigs_list()
-        #primary_designations_array         =  np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
+        #pass
+        primary_designations_list_of_dicts = dbConn.get_unpacked_primary_desigs_list()
+        primary_designations_array         =  np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
 
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
-    
-    print('primary_designations_array=',primary_designations_array)
-    
+        
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
     
     # Cycle through each of the designations and run a check on each designation
     for desig in primary_designations_array:
-        check_single_designation( desig )
+        check_single_designation( desig , dbConn)
     
-    
-def get_all_primary_designations():
-    """
-    Do the equivalent of
-    select count(DISTINCT unpacked_primary_provisional_designation) from current_identifications;
-    """
-    return
     
     
 def check_single_designation( unpacked_provisional_designation , FIX=False):
