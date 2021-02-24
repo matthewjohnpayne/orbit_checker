@@ -29,13 +29,16 @@ from dbchecks.query_ids import get_unpacked_primary_desigs_list
 
 # Codes to define possible orbit/designation "status"
 status_dict = {
-    0   :  "Not a primary designation"
+    0   :  "Not a primary designation",
+    
     1   :  "Orbit Absent: No observations exist",
     2   :  "Orbit Absent: Insufficient observations exist to form a reasonable orbit",
     9   :  "Orbit Absent: ...other...",
+    
     10  : "Orbit Poor:   Short-Arc / Few observations",
     11  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
     19  : "Orbit Poor:   ...other...",
+    
     20  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
     21  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
     29  : "Orbit Exists: ...other...",
