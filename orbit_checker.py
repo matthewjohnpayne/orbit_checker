@@ -51,8 +51,9 @@ def check_multiple_designations( method = None , size=0 ):
     # Get a list of primary designations from the current_identifications table in tthe database
     if method in ['ALL' ,'RANDOM']:
         primary_designations_dict = query_ids.get_unpacked_primary_desigs_list()
-        primary_designations_array= np.array( list( primary_designations_dict.values() ) )
-    
+        #primary_designations_array= np.array( list( primary_designations_dict.values() ) )
+    print( primary_designations_dict[0] )
+    sys.exit() 
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
