@@ -53,7 +53,7 @@ def check_multiple_designations( method = None , size=0 ):
         primary_designations_list_of_dicts = query_ids.get_unpacked_primary_desigs_list()
         primary_designations_array=  [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ]
     print( type(primary_designations_list_of_dicts), primary_designations_list_of_dicts[0] )
-    print( type(primary_designations_array) )
+    print( type(primary_designations_array), primary_designations_array[0] )
     sys.exit()
     # Choose a random subset
     if method == 'RANDOM':
