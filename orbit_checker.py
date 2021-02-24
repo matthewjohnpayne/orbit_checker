@@ -1,6 +1,31 @@
 """
+Code that is intended to cycle through the known designations and do a few orbit-related checks.
+E.g.
+ - Do we have an orbit
+ - Do we have an orbfit orbit
+ - Is the orbit 'good'
+ - What 'cleaning' needs to be done
+ - Flag up any of the above problems in a standardized way
 
+Intended to be used as both
+(a) a 'one-off cleaning' capacity, and
+(b) a back-ground 'monitoring' script
+ 
+MJP 2021-02-24
 """
+
+# --------- Third-Party imports -----
+import sys
+import os
+import numpy as np
+
+# --------- Local imports -----------
+sys.path.insert(0,'/share/apps/identifications_pipeline/')
+from dbchecks.query_ids import get_unpacked_primary_desigs_list
+
+
+
+
 
 # Codes to define possible orbit/designation "status"
 status_dict = {
@@ -19,10 +44,13 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
+    print('get_unpacked_primary_desigs_list ', len(get_unpacked_primary_desigs_lists) )
     
     # Get a list of primary designations from the current_identifications table in tthe database
     if method in ['ALL' ,'RANDOM']:
-        primary_designations_array = get_all_primary_designations()
+        primary_designations_array = np.array( get_unpacked_primary_desigs_list )
+
+    sys.exit()
     
     # Choose a random subset
     if method == 'RANDOM':
@@ -66,3 +94,6 @@ def check_single_designation( unpacked_provisional_designation , FIX=False):
     # Save the updated orbit to the db
     # Save the status to the db
     
+
+if __name__ == '__main__':
+    check_multiple_designations(method = 'RANDOM' , size=2 )
