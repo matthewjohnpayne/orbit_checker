@@ -84,12 +84,12 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
-    print('...', unpacked_provisional_designation, dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation) )
+    assert dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
 
     # Do we want to look for a flat-file orbit ?
 
     # Do we already have an orbit in the db ?
-    print( 'orb...', dbConnOrbs.has_orbfit_result(unpacked_provisional_designation) )
+    print( unpacked_provisional_designation, ' : orbfit result ', dbConnOrbs.has_orbfit_result(unpacked_provisional_designation) )
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     
