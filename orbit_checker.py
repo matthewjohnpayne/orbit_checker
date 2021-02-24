@@ -47,17 +47,16 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
-    print('get_unpacked_primary_desigs_list ', len(query_ids.get_unpacked_primary_desigs_list() ) )
     
     # Get a list of primary designations from the current_identifications table in tthe database
     if method in ['ALL' ,'RANDOM']:
         primary_designations_array = np.array( query_ids.get_unpacked_primary_desigs_list() )
-
-    sys.exit()
     
     # Choose a random subset
     if method == 'RANDOM':
-        primary_designations_array = np.random.choice(primary_designations_array, size=None, replace=False)
+        primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
+    
+    print('primary_designations_array=',primary_designations_array)
     
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
