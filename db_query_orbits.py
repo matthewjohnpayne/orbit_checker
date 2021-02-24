@@ -7,7 +7,10 @@ It will likely overlap with code already written by MPan
  - Need to tidy-up at some point
 """
 
-
+# --------- Third-Party imports -----
+import sys
+import os
+import psycopg2
 
 class QueryOrbfitResults():
 
