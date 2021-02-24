@@ -47,8 +47,11 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
-    # Setting up connection object to PP's Query routines ...
-    dbConn = query_ids.QueryCurrentID()
+    # Setting up connection object to PP's ID-Query routines ...
+    dbConnIDs  = query_ids.QueryCurrentID()
+    
+    # Setting up connection object to MJP's Orb-Query routines ...
+    dbConnOrbs = query_orbs.QueryOrbfitResults()
 
     # Setting up a default array for development ...
     primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
@@ -68,11 +71,11 @@ def check_multiple_designations( method = None , size=0 ):
     
     # Cycle through each of the designations and run a check on each designation
     for desig in primary_designations_array:
-        check_single_designation( desig , dbConn)
+        check_single_designation( desig , dbConn, dbConnOrbs)
     
     
     
-def check_single_designation( unpacked_provisional_designation , dbConn, FIX=False):
+def check_single_designation( unpacked_provisional_designation , dbConn, dbConnOrbs, FIX=False):
     '''
     
     '''
@@ -81,8 +84,11 @@ def check_single_designation( unpacked_provisional_designation , dbConn, FIX=Fal
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
     print('...', unpacked_provisional_designation, dbConn.is_valid_unpacked_primary_desig(unpacked_provisional_designation) )
-    
+
+    # Do we want to look for a flat-file orbit ?
+
     # Do we already have an orbit in the db ?
+    print( 'orb...', dbConnOrbs.has_orbfit_result(unpacked_provisional_designation) )
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     
