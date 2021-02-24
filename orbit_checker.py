@@ -90,6 +90,10 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
     # Do we already have an orbit in the db ?
     print( unpacked_provisional_designation, ' : orbfit result ', dbConnOrbs.has_orbfit_result(unpacked_provisional_designation) )
+    
+    # Understand the orbitt quality
+    # - Not clear where we want to be doing this, but while developing I am doing this here ...
+    print( dbConnOrbs.get_quality_json(unpacked_provisional_designation) )
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     
