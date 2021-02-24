@@ -12,9 +12,9 @@ It will likely overlap with code already written by MPan
 class QueryOrbfitResults():
 
     def __init__(self, db_host='localhost', db_user ='postgres', db_name='vmsops'):
-    """
-    Initialize ...
-    """
+        """
+        Initialize ...
+        """
         try:
             self.dbConn = psycopg2.connect(host=db_host, user=db_user, database=db_name)
             self.dbCur = self.dbConn.cursor()
@@ -24,9 +24,9 @@ class QueryOrbfitResults():
 
 
     def execute_query(self, query):
-    """
-    Execute a generic supplied query
-    """
+        """
+        Execute a generic supplied query
+        """
         try:
             self.dbCur.execute(query)
         except (Exception, psycopg2.Error) as error :
@@ -48,6 +48,7 @@ class QueryOrbfitResults():
     
     def has_orbfit_result(self, unpacked_primary_desig):
         """ Is there any entry in the orbit table for this one ? """
+        
         query = f"""
         SELECT to_json(t)
         FROM (
