@@ -72,12 +72,15 @@ def check_multiple_designations( method = None , size=0 ):
     
     
     
-def check_single_designation( unpacked_provisional_designation , FIX=False):
+def check_single_designation( unpacked_provisional_designation , dbConn, FIX=False):
     '''
     
     '''
 
     # Is this actually a primary unpacked_provisional_designation ?
+    # - If being called from a list pulled from the identifications tables, then this step is unnecessary
+    # - But I provide it for safety
+    print('...', desig, dbConn.is_valid_unpacked_primary_desig(unpacked_primary_desig) )
     
     # Do we already have an orbit in the db ?
 
