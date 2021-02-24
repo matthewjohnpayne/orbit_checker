@@ -21,7 +21,7 @@ import numpy as np
 
 # --------- Local imports -----------
 sys.path.insert(0,'/share/apps/identifications_pipeline/')
-from dbchecks.query_ids import get_unpacked_primary_desigs_list
+import dbchecks.query_ids as query_ids
 
 
 
@@ -47,11 +47,11 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
-    print('get_unpacked_primary_desigs_list ', len(get_unpacked_primary_desigs_lists) )
+    print('get_unpacked_primary_desigs_list ', len(query_ids.get_unpacked_primary_desigs_lists() ) )
     
     # Get a list of primary designations from the current_identifications table in tthe database
     if method in ['ALL' ,'RANDOM']:
-        primary_designations_array = np.array( get_unpacked_primary_desigs_list )
+        primary_designations_array = np.array( query_ids.get_unpacked_primary_desigs_list() )
 
     sys.exit()
     
