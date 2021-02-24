@@ -72,11 +72,11 @@ def check_multiple_designations( method = None , size=0 ):
     
     # Cycle through each of the designations and run a check on each designation
     for desig in primary_designations_array:
-        check_single_designation( desig , dbConn, dbConnOrbs)
+        check_single_designation( desig , dbConnIDs, dbConnOrbs)
     
     
     
-def check_single_designation( unpacked_provisional_designation , dbConn, dbConnOrbs, FIX=False):
+def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
     
     '''
@@ -84,7 +84,7 @@ def check_single_designation( unpacked_provisional_designation , dbConn, dbConnO
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
-    print('...', unpacked_provisional_designation, dbConn.is_valid_unpacked_primary_desig(unpacked_provisional_designation) )
+    print('...', unpacked_provisional_designation, dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation) )
 
     # Do we want to look for a flat-file orbit ?
 
