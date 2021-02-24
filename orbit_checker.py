@@ -47,14 +47,15 @@ status_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     """
-    
-    # Get a list of primary designations from the current_identifications table in tthe database
+    # Setting up a default array for development ...
+    primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
+        
+    # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        primary_designations_list_of_dicts = query_ids.get_unpacked_primary_desigs_list()
-        primary_designations_array=  np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
-    print( type(primary_designations_list_of_dicts), primary_designations_list_of_dicts[0] )
-    print( type(primary_designations_array), primary_designations_array[0] )
-    sys.exit()
+        pass
+        #primary_designations_list_of_dicts = query_ids.get_unpacked_primary_desigs_list()
+        #primary_designations_array         =  np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
+
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
@@ -74,7 +75,7 @@ def get_all_primary_designations():
     Do the equivalent of
     select count(DISTINCT unpacked_primary_provisional_designation) from current_identifications;
     """
-    return np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229'] )
+    return
     
     
 def check_single_designation( unpacked_provisional_designation , FIX=False):
