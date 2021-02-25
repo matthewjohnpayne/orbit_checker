@@ -19,7 +19,7 @@ import sys
 import os
 import numpy as np
 import subprocess
-
+import json
 
 # --------- Local imports -----------
 sys.path.insert(0,'/share/apps/identifications_pipeline/dbchecks/')
@@ -144,10 +144,13 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     
     print('proc_dir=', proc_dir )
     
-    # Grab the results file that I want
-    
-
-    return proc_dir
+    # Grab the results file(s) that I want & return it
+    result_json = glob.glob(proc_dir + "/resultdict_*json")[0]
+    print('result_json=', result_json )
+    with open(result_json) as rj:
+        result_dict = json.load(rj)
+    #print('result_dict=', result_dict )
+    return result_dict
     
     # Delete the local file
     #os.remove(designation_file)
