@@ -119,7 +119,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 def call_orbit_fit(unpacked_provisional_designation):
 
     # Make a local "designation file" as per Margaret's instructions
-    designation_file = '.temp_desig_file.txt'
+    designation_file = os.path.join( os.path.expanduser("~") , '.temp_desig_file.txt')
     with open(designation_file,'w') as fh:
         fh.write(unpacked_provisional_designation+'\n')
     print('designation_file=', designation_file)
