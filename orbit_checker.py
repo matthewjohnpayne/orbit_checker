@@ -127,8 +127,8 @@ def call_orbit_fit(unpacked_provisional_designation):
     # Run the orbit fit & Capture the name of the processing directory
     command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
     print('command=', command)
-    process = subprocess.Popen(command        stdout = subprocess.PIPE,
-        stderr = subprocess.STDOUT,
+    process = subprocess.Popen(command, stdout = subprocess.PIPE,
+                                        stderr = subprocess.STDOUT,
     )
     #stdout, stderr = process.communicate()
     #print('stdout=', stdout )
