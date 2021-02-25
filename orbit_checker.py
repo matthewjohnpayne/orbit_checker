@@ -120,9 +120,9 @@ def call_orbit_fit(unpacked_provisional_designation):
 
     # Make a local "designation file" as per Margaret's instructions
     designation_file = os.path.join( os.path.expanduser("~") , '.temp_desig_file.txt')
+    print('designation_file=', designation_file)
     with open(designation_file,'w') as fh:
         fh.write(unpacked_provisional_designation+'\n')
-    print('designation_file=', designation_file)
 
     # Run the orbit fit & Capture the name of the processing directory
     command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
