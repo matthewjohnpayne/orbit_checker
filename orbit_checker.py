@@ -103,7 +103,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     # - Obviously I don't like doing a Gareth-like command-line call
     # - But I'll do it for now while MPan is developing/converging the codes
-    call_orbit_fit(unpacked_provisional_designation)
+    proc_dir = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
 
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     
@@ -116,7 +116,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Save the updated orbit to the db
     # Save the status to the db
     
-def call_orbit_fit(unpacked_provisional_designation):
+def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation):
 
     # Make a local "designation file" as per Margaret's instructions
     designation_file = os.path.join( os.path.expanduser("~") , '.temp_desig_file.txt')
@@ -124,7 +124,7 @@ def call_orbit_fit(unpacked_provisional_designation):
     with open(designation_file,'w') as fh:
         fh.write(unpacked_provisional_designation+'\n')
 
-    # Run the orbit fit & Capture the name of the processing directory
+    # Run the orbit fit & Capture the output
     command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
     print('command=', command)
     #os.system(command)
@@ -134,11 +134,20 @@ def call_orbit_fit(unpacked_provisional_designation):
                                 shell=True
     )
     stdout, stderr = process.communicate()
-    stdout = stdout.decode("utf-8") 
-    print('stdout=',stdout)
-    print('type stdout=', type(stdout) )
-
+    stdout = stdout.decode("utf-8")
     
+    # Extract the name of the processing directory from the stdout
+    for line in stdout:
+        if "Created processing directory" in line:
+            proc_dir = line.split()[-1]
+    
+    print('stdout=',stdout)
+    print('proc_dir=', proc_dir )
+    
+    # Grab the results file that I want
+    
+
+    return proc_dir
     
     # Delete the local file
     #os.remove(designation_file)
