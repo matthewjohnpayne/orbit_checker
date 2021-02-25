@@ -85,7 +85,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     '''
     
     '''
-
+    print(unpacked_provisional_designation)
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
@@ -103,7 +103,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-
+    print('result_dict.keys() = ',result_dict.keys() )
+    
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     
     # If possible & if necessary, attempt to fix anything bad
