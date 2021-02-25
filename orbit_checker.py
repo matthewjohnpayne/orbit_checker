@@ -138,19 +138,16 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     stdout = stdout.decode("utf-8").split('\n')
     
     # Extract the name of the processing directory from the stdout
-    print('stdout...')
     for line in stdout:
         if "Created processing directory" in line:
             proc_dir = line.split()[-1]
-    
-    print('proc_dir=', proc_dir )
     
     # Grab the results file(s) that I want & return it
     result_json = glob.glob(proc_dir + "/resultdict_*json")[0]
     print('result_json=', result_json )
     with open(result_json) as rj:
         result_dict = json.load(rj)
-    #print('result_dict=', result_dict )
+    print('result_dict=', result_dict )
     return result_dict
     
     # Delete the local file
