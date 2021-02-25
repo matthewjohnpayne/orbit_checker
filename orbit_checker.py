@@ -102,9 +102,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     #quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    # - Obviously I don't like doing a Gareth-like command-line call
-    # - But I'll do it for now while MPan is developing/converging the codes
-    proc_dir = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+    result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
 
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     
@@ -118,17 +116,19 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Save the status to the db
     
 def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation):
-
+    """
+    # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
+    # - Obviously I don't like doing a Gareth-like command-line call
+    # - But I'll do it for now while MPan is developing/converging the codes
+    """
+    
     # Make a local "designation file" as per Margaret's instructions
     designation_file = os.path.join( os.path.expanduser("~") , '.temp_desig_file.txt')
-    print('designation_file=', designation_file)
     with open(designation_file,'w') as fh:
         fh.write(unpacked_provisional_designation+'\n')
 
     # Run the orbit fit & Capture the output
     command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
-    print('command=', command)
-    #os.system(command)
     process = subprocess.Popen( command,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
@@ -137,6 +137,9 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     stdout, stderr = process.communicate()
     stdout = stdout.decode("utf-8").split('\n')
     
+    # Delete the local file
+    os.remove(designation_file)
+
     # Extract the name of the processing directory from the stdout
     for line in stdout:
         if "Created processing directory" in line:
@@ -144,14 +147,10 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     
     # Grab the results file(s) that I want & return it
     result_json = glob.glob(proc_dir + "/resultdict_*json")[0]
-    print('result_json=', result_json )
     with open(result_json) as rj:
         result_dict = json.load(rj)
-    print('result_dict=', result_dict )
     return result_dict
     
-    # Delete the local file
-    #os.remove(designation_file)
     
     return designation_file
 
