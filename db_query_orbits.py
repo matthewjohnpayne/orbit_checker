@@ -115,7 +115,7 @@ class QueryOrbfitResults():
         UPDATE
              primary_objects
         SET
-             orbfit_results = {     orbfit_results_boolean }
+             orbfit_results = {     orbfit_results_boolean },
              no_orbit       = { not orbfit_results_boolean }
         WHERE
              unpacked_primary_provisional_designation = '{ unpacked_primary_desig }'
