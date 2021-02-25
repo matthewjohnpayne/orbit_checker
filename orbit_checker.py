@@ -134,6 +134,7 @@ def call_orbit_fit(unpacked_provisional_designation):
                                 shell=True
     )
     stdout, stderr = process.communicate()
+    stdout = stdout.decode("utf-8") 
     print('stdout=',stdout)
     print('type stdout=', type(stdout) )
 
