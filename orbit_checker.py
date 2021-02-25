@@ -130,6 +130,8 @@ def call_orbit_fit(unpacked_provisional_designation):
     process = subprocess.Popen(command, stdout = subprocess.PIPE,
                                         stderr = subprocess.STDOUT,
     )
+    output = process.stdout
+    print('output=',output)
     #stdout, stderr = process.communicate()
     #print('stdout=', stdout )
     #print('stderr=', stderr )
