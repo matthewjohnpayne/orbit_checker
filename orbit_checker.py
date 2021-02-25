@@ -52,15 +52,17 @@ status_dict = {
 
 def check_multiple_designations( method = None , size=0 ):
     """
+    Outer loop-function to allow us to check a long list of designations
     """
-    # Setting up connection object to PP's ID-Query routines ...
-    dbConnIDs  = query_ids.QueryCurrentID()
     
-    # Setting up connection object to MJP's Orb-Query routines ...
+    # Setting up connection objects...
+    # (i)to PP's ID-Query routines ...
+    dbConnIDs  = query_ids.QueryCurrentID()
+    # (ii) to MJP's Orb-Query routines ...
     dbConnOrbs = query_orbs.QueryOrbfitResults()
 
     # Setting up a default array for development ...
-    primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
+    primary_designations_array = np.array( ['2016 EN210'])#, '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
         
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
@@ -83,9 +85,12 @@ def check_multiple_designations( method = None , size=0 ):
     
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
+    Do a buunch of checks on a single designation
+    WIP
     
     '''
     print(unpacked_provisional_designation)
+    
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
@@ -94,16 +99,18 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
     # Update the primary_objects table to flag whether we have an orbit in the orbfit-results table
     # NB : If there is *no* match, then the returned value for orbfit_results_id == False
-    orbfit_results_id = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
-    #dbConnOrbs.set_orbfit_results_id_in_primary_objects(orbfit_results_id   )
+    orbfit_results_id       = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
+    orbfit_results_boolean  = True if orbfit_results_id else False
+    #dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
+    #                                                        orbfit_results_boolean   )
     
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
     #quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-    print('result_dict[unpacked_provisional_designation].keys() = ',result_dict[unpacked_provisional_designation].keys() )
+    #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+    #print('result_dict.keys() = ',result_dict.keys() )
     
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     

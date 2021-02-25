@@ -104,7 +104,7 @@ class QueryOrbfitResults():
     # --------------------------------
     # --------------------------------
 
-    def set_orbfit_results_id_in_primary_objects(self,
+    def set_orbfit_results_flags_in_primary_objects(self,
                                                 unpacked_primary_desig,
                                                 orbfit_results_boolean):
 
@@ -113,7 +113,8 @@ class QueryOrbfitResults():
         UPDATE
              primary_objects
         SET
-             orbfit_results_id = { orbfit_results_id }
+             orbfit_results = {     orbfit_results_boolean }
+             orbfit_results = { not orbfit_results_boolean }
         WHERE
              unpacked_primary_provisional_designation = '{ unpacked_primary_desig }'
         """
