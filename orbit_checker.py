@@ -133,7 +133,12 @@ def call_orbit_fit(unpacked_provisional_designation):
     #stdout, stderr = process.communicate()
     #print('stdout=', stdout )
     #print('stderr=', stderr )
-    os.system(command)
+    
+    #os.system(command)
+    
+    subprocess = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    subprocess_return = subprocess.stdout.read()
+    print('subprocess_return = ',subprocess_return)
     
     # Delete the local file
     #os.remove(designation_file)
