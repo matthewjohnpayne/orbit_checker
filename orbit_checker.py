@@ -137,11 +137,13 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     stdout = stdout.decode("utf-8")
     
     # Extract the name of the processing directory from the stdout
+    print('stdout=',...)
     for line in stdout:
+        print(line)
         if "Created processing directory" in line:
+            print('TRUE'*10)
             proc_dir = line.split()[-1]
     
-    print('stdout=',stdout)
     print('proc_dir=', proc_dir )
     
     # Grab the results file that I want
