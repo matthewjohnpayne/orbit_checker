@@ -42,7 +42,9 @@ class QueryOrbfitResults():
         return data
 
     def deal_with_error(self , error_message):
-        pass
+        """ Once development is complete, when deployed may want to send emails, log, ..."""
+        print('Some kind of error occurred ...')
+        print(error_message)
 
     # --------------------------------
     # --------------------------------
@@ -107,7 +109,7 @@ class QueryOrbfitResults():
     def set_orbfit_results_flags_in_primary_objects(self,
                                                 unpacked_primary_desig,
                                                 orbfit_results_boolean):
-
+        print('set_orbfit_results_flags_in_primary_objects...')
         # For the primary packed desig update numbered column
         update_statement = f"""
         UPDATE
