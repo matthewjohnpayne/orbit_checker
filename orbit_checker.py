@@ -110,8 +110,10 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
     quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
-    print('quality_dict=', quality_dict)
-
+    status_dict  = assess_quality_dict(quality_dict)
+    print('quality_dict', quality_dict)
+    print('status_dict',status_dict)
+    
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     #print('result_dict.keys() = ',result_dict.keys() )
@@ -163,8 +165,32 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
         result_dict = json.load(rj)
     return result_dict
     
-    
-    return designation_file
 
+def assess_quality_dict(quality_dict):
+    """ At present this is just saying Bad/Red(-1), SlightProblem/Amber(0), Good/Green(1) """
+    
+    # Things to loop through
+    expected_topline_keys = ["mid_epoch","std_epoch"]
+    problems_A  = ["no orbit"]
+    problems_B  = ["no CAR covariance", "no COM covariance"]
+    
+    # Default result dict
+    result_dict = {'status':1}
+    
+    # Go through problems: most severe first
+    for k in expected_topline_keys:
+        message_string = quality_dict[k]
+        for problem in problems_A:
+            if problem in message_string:
+                    result_dict['status'] = -1
+                    break
+        for problem in problems_B:
+            if problem in message_string:
+                    result_dict['status'] = 0
+                    break
+    # return
+    return result_dict
+    
+    
 if __name__ == '__main__':
     check_multiple_designations(method = 'RANDOM' , size=1 )
