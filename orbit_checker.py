@@ -18,12 +18,16 @@ MJP 2021-02-24
 import sys
 import os
 import numpy as np
+import subprocess
+
 
 # --------- Local imports -----------
 sys.path.insert(0,'/share/apps/identifications_pipeline/dbchecks/')
 import query_ids
+
 import db_query_orbits as query_orbs
 
+sys.path.insert(0,'/sa/orbit_pipeline/')
 
 
 
@@ -86,19 +90,23 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # - But I provide it for safety
     assert dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
 
-    # Do we want to look for a flat-file orbit ?
 
-    # Do we already have an orbit in the db ?
-    print( unpacked_provisional_designation, ' : orbfit result ', dbConnOrbs.has_orbfit_result(unpacked_provisional_designation) )
+    # Update the primary_objects table to flag whether we have an orbit in the orbfit-results table
+    # NB : If there is *no* match, then the returned value for orbfit_results_id == False
+    orbfit_results_id = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
+    #dbConnOrbs.set_orbfit_results_id_in_primary_objects(orbfit_results_id   )
     
-    # Understand the orbitt quality
+    # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
-    print( dbConnOrbs.get_quality_json(unpacked_provisional_designation) )
+    #quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    
-    # Evaluate the result from the orbit_pipeline_wrapper & assign a status
+    # - Obviously I don't like doing a Gareth-like command-line call
+    # - But I'll do it for now while MPan is developing/converging the codes
+    call_orbit_fit(unpacked_provisional_designation)
 
+    # Evaluate the result from the orbit_pipeline_wrapper & assign a status
+    
     # If possible & if necessary, attempt to fix anything bad
     # E.g. status==21, ... (one or more tracklets to be dealt with) ...
     if FIX:
@@ -108,6 +116,23 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Save the updated orbit to the db
     # Save the status to the db
     
+def call_orbit_fit(unpacked_provisional_designation):
+
+    # Make a local "designation file" as per Margaret's instructions
+    designation_file = '~/.temp_desig_file.txt'
+    with open(designation_file,'w') as fh:
+        fh.write(unpacked_provisional_designation+'\n')
+    print('designation_file=', designation_file)
+
+    # Run the orbit fit & Capture the name of the processing directory
+    command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
+    print('command=', command)
+    process = subprocess.Popen(["command"], stdout=subprocess.PIPE)
+
+    # Delete the local file
+    #os.remove(designation_file)
+    
+    return designation_file
 
 if __name__ == '__main__':
     check_multiple_designations(method = 'RANDOM' , size=2 )

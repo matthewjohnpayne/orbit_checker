@@ -41,6 +41,8 @@ class QueryOrbfitResults():
 
         return data
 
+    def deal_with_error(self , error_message):
+        pass
 
     # --------------------------------
     # --------------------------------
@@ -69,7 +71,7 @@ class QueryOrbfitResults():
         data = self.execute_query(query)
 
         if data:
-            return True
+            return id
         else:
             return False
 
@@ -92,3 +94,34 @@ class QueryOrbfitResults():
 
         # execute query and return data
         return self.execute_query(query)
+
+
+
+
+    # --------------------------------
+    # --------------------------------
+    # Update queries
+    # --------------------------------
+    # --------------------------------
+
+    def set_orbfit_results_id_in_primary_objects(self,
+                                                unpacked_primary_desig,
+                                                orbfit_results_boolean):
+
+        # For the primary packed desig update numbered column
+        update_statement = f"""
+        UPDATE
+             primary_objects
+        SET
+             orbfit_results_id = { orbfit_results_id }
+        WHERE
+             unpacked_primary_provisional_designation = '{ unpacked_primary_desig }'
+        """
+
+        try:
+            self.dbCur.execute(update_statement)
+        except (Exception, psycopg2.Error) as error :
+            error_message = "Error while updating primary_objects tables :%r" % error
+            self.deal_with_error(error_message)
+
+        self.dbConn.commit()
