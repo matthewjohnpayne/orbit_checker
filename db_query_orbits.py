@@ -71,7 +71,7 @@ class QueryOrbfitResults():
         data = self.execute_query(query)
 
         if data:
-            return id
+            return True
         else:
             return False
 

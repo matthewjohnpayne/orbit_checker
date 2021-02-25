@@ -101,9 +101,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # NB(1) : If there is *no* match, then the returned value for orbfit_results_id == False
     # NB(2) : This is not logically great, should really be checking not in comets, etc,
     #         but for now, while developing, this is not something to worry about while the comet tble is empty
-    orbfit_results_id       = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
-    orbfit_results_boolean  = True if orbfit_results_id else False
-    print('orbfit_results_id=', orbfit_results_id)
+    orbfit_results_boolean       = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
     print('orbfit_results_boolean=', orbfit_results_boolean)
     if orbfit_results_boolean:
         dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
