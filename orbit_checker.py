@@ -103,6 +103,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     #         but for now, while developing, this is not something to worry about while the comet tble is empty
     orbfit_results_id       = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
     orbfit_results_boolean  = True if orbfit_results_id else False
+    print('orbfit_results_id=', orbfit_results_id)
+    print('orbfit_results_boolean=', orbfit_results_boolean)
     if orbfit_results_boolean:
         dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
                                                                 orbfit_results_boolean   )
