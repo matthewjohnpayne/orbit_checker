@@ -39,15 +39,15 @@ status_dict = {
     
     1   :  "Orbit Absent: No observations exist",
     2   :  "Orbit Absent: Insufficient observations exist to form a reasonable orbit",
-    9   :  "Orbit Absent: ...other...",
+    9   :  "Orbit Absent: As yet unclassified",
     
     10  : "Orbit Poor:   Short-Arc / Few observations",
     11  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
-    19  : "Orbit Poor:   ...other...",
+    19  : "Orbit Poor:   As yet unclassified",
     
     20  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
     21  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
-    29  : "Orbit Exists: ...other...",
+    29  : "Orbit Exists: As yet unclassified",
 }
 
 def check_multiple_designations( method = None , size=0 ):
@@ -94,15 +94,18 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
-    assert dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
-
+    isValidPrimary = dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
+    assert isValidPrimary
 
     # Update the primary_objects table to flag whether we have an orbit in the orbfit-results table
-    # NB : If there is *no* match, then the returned value for orbfit_results_id == False
+    # NB(1) : If there is *no* match, then the returned value for orbfit_results_id == False
+    # NB(2) : This is not logically great, should really be checking not in comets, etc,
+    #         but for now, while developing, this is not something to worry about while the comet tble is empty
     orbfit_results_id       = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
     orbfit_results_boolean  = True if orbfit_results_id else False
-    #dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
-    #                                                        orbfit_results_boolean   )
+    if orbfit_results_boolean:
+        dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
+                                                                orbfit_results_boolean   )
     
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
