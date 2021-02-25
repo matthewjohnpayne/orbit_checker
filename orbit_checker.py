@@ -109,7 +109,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
-    #quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
+    quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
+    print('quality_dict=', quality_dict)
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
