@@ -103,7 +103,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-    print('result_dict.keys() = ',result_dict.keys() )
+    print('result_dict[unpacked_provisional_designation].keys() = ',result_dict[unpacked_provisional_designation].keys() )
     
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     
