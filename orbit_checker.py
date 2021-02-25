@@ -20,6 +20,7 @@ import os
 import numpy as np
 import subprocess
 import json
+import glob
 
 # --------- Local imports -----------
 sys.path.insert(0,'/share/apps/identifications_pipeline/dbchecks/')
