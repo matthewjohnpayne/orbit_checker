@@ -128,6 +128,7 @@ def call_orbit_fit(unpacked_provisional_designation):
     command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
     print('command=', command)
     process = subprocess.Popen(["command"], stdout=subprocess.PIPE)
+    print('process=', process)
 
     # Delete the local file
     #os.remove(designation_file)
