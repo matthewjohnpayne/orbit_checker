@@ -149,8 +149,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     print('boolean_dict',boolean_dict)
     
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-    #print('result_dict.keys() = ',result_dict.keys() )
+    result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+    assess_result_dict(result_dict , boolean_dict)
     
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
     
@@ -244,6 +244,17 @@ def assess_quality_dict(quality_dict , boolean_dict):
     # return
     return
     
+def assess_result_dict(result_dict , boolean_dict):
+    """ Assess the results retturned by orbfit
     
+        Look at
+        (i)  Bad Tracklet Dict
+        (ii) Overall Quality Dict
+    """
+    for k,v in result_dict.items():
+        print(k, type(v))
+    print("...")
+
+
 if __name__ == '__main__':
     check_multiple_designations(method = 'RANDOM' , size=1 )
