@@ -290,7 +290,7 @@ def assess_result_dict(result_dict , boolean_dict):
         
     """
     
-    print('\n assess_result_dict...)
+    print('\n assess_result_dict...')
     for k,v in result_dict.items():
         print(k)
         
