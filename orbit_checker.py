@@ -56,32 +56,32 @@ status_dict = {
 # Alternative way of define possible orbit/designation "status"
 boolean_dict = {
 
-# Overall designation status
-'IS_PRIMARY_UNPACKED_DESIGNATION'   : False,
+    # Overall designation status
+    'IS_PRIMARY_UNPACKED_DESIGNATION'   : False,
 
-# Whether an orbit exists anywhere
-'IS_IN_ORBFIT_RESULTS'              : False,
-'IS_IN_COMET_RESULTS'               : False,
-'IS_IN_SATELLITE_RESULTS'           : False,
-'IS_IN_NO_RESULTS'                  : False,
+    # Whether an orbit exists anywhere
+    'IS_IN_ORBFIT_RESULTS'              : False,
+    'IS_IN_COMET_RESULTS'               : False,
+    'IS_IN_SATELLITE_RESULTS'           : False,
+    'IS_IN_NO_RESULTS'                  : False,
 
-# If has orbfit results in table, what is overall summary of the "quality-json"
-'HAS_BAD_QUALITY_DICT'              : False,
-'HAS_INTERMEDIATE_QUALITY_DICT'     : False,
-'HAS_GOOD_QUALITY_DICT'             : False,
+    # If has orbfit results in table, what is overall summary of the "quality-json"
+    'HAS_BAD_QUALITY_DICT'              : False,
+    'HAS_INTERMEDIATE_QUALITY_DICT'     : False,
+    'HAS_GOOD_QUALITY_DICT'             : False,
 
-# Were there problems running orbfit (I.E. complete failures in start-up / crashes / etc )
-# NB: Should subsequently flag-up problems with input obs/orbits/other
-'SUCCESSFUL_ORBFIT_EXECUTION'       : False,
+    # Were there problems running orbfit (I.E. complete failures in start-up / crashes / etc )
+    # NB: Should subsequently flag-up problems with input obs/orbits/other
+    'SUCCESSFUL_ORBFIT_EXECUTION'       : False,
 
-# Given successful execution, could an orbit of any kind be generated ( even if there are some outliers, or the fit is "weak" )
-'SUCCESSFUL_ORBIT_GENERATION'       : False,
+    # Given successful execution, could an orbit of any kind be generated ( even if there are some outliers, or the fit is "weak" )
+    'SUCCESSFUL_ORBIT_GENERATION'       : False,
 
-# Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
-'HAS_BAD_TRACKLETS'                 : False,
+    # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
+    'HAS_BAD_TRACKLETS'                 : False,
 
-# Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
-'HAS_WEAK_ORBIT_FIT'                : False,
+    # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
+    'HAS_WEAK_ORBIT_FIT'                : False,
 
 }
 
@@ -124,7 +124,7 @@ def check_multiple_designations( method = None , size=0 ):
     
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
-    Do a buunch of checks on a single designation
+    Do a bunch of checks on a single designation
     WIP
     
     '''
@@ -144,7 +144,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     boolean_dict['IS_IN_COMET_RESULTS']         = False
     boolean_dict['IS_IN_SATELLITE_RESULTS']     = False
     boolean_dict['IS_IN_NO_RESULTS']            = not boolean_dict['IS_IN_ORBFIT_RESULTS']
-    print('IS_IN_ORBFIT_RESULTS:', boolean_dict['IS_IN_ORBFIT_RESULTS'])
+    
     #if boolean_dict['IS_IN_ORBFIT_RESULTS']:
     #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
     #                                                                boolean_dict['IS_IN_ORBFIT_RESULTS']   )
@@ -154,24 +154,28 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     if boolean_dict['IS_IN_ORBFIT_RESULTS'] :
         quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
         assess_quality_dict(quality_dict , boolean_dict)
-        for k in ['HAS_BAD_QUALITY_DICT' , 'HAS_BAD_QUALITY_DICT', 'HAS_GOOD_QUALITY_DICT']:
+        for k in ['HAS_BAD_QUALITY_DICT' , 'HAS_INTERMEDIATE_QUALITY_DICT', 'HAS_GOOD_QUALITY_DICT']:
             print(k, boolean_dict[k])
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-    result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
-    assess_result_dict(unpacked_provisional_designation , result_dict )
-    
+    ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+    #result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+
     # Evaluate the result from the orbit_pipeline_wrapper & assign a status
+    #assess_result_dict(unpacked_provisional_designation , result_dict )
     
     # If possible & if necessary, attempt to fix anything bad
     # E.g. status==21, ... (one or more tracklets to be dealt with) ...
     if FIX:
         pass
 
-    # If appropriate, ...
-    # Save the updated orbit to the db
-    # Save the status to the db
+    # ...
+    if boolean_dict['IS_IN_NO_RESULTS'] :
+        print('IS_IN_NO_RESULTS')
+    elif boolean_dict['HAS_BAD_QUALITY_DICT']:
+        print('HAS_BAD_QUALITY_DICT')
+    else:
+        print()
     
     
     
@@ -281,14 +285,12 @@ def assess_quality_dict(quality_dict , boolean_dict):
     
     
 def assess_result_dict(unpacked_provisional_designation , result_dict):
-    """ Assess the results retturned by orbfit
-    
-        Look at
-        (i)  Bad Tracklet Dict
-        (ii) Overall Quality Dict
-        (iii) ...
-        
+    """
+        Assess the results returned by orbfit
+
         * MJP needs to go through this with MPan to understand the possible returns *
+        
+        I feel like some of this must be duplicating logic in Margaret's code
         
     """
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
