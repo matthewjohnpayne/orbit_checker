@@ -281,10 +281,11 @@ def assess_result_dict(result_dict , boolean_dict):
     # Let's look for the quality dict ...
     if ORBFIT_SUCCESS:
         for k,v in result_dict.items():
-            if isinstance(v, dict):
+            if isinstance(v, dict) and 'fit_status' in v:
                 print(k)
                 for key,val in v.items():
                     print('\t',key)
-
+                    if key == 'fit_status':
+                        print('\t\t',val)
 if __name__ == '__main__':
     check_multiple_designations(method = 'ALL' , size=1 )
