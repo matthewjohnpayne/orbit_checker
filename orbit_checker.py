@@ -117,12 +117,26 @@ def check_multiple_designations( method = None , size=0 ):
     print(f'Checking N={len(primary_designations_array)} designations')
     
     # Cycle through each of the designations and run a check on each designation
+    # Current return is rather primitive
     results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
     
+    # Primitive categorization ...
+    print('Missing...')
+    n = 0
     for r,p in zip(results, primary_designations_array):
-        if r == -1 : print('Missing',p)
+        if r == -1 :
+            n += 1
+            print(p)
+    print('\t N_missing = ', n)
+    
+    
+    print('Poor...')
+    n = 0
     for r,p in zip(results, primary_designations_array):
-        if r == 0 : print('Poor   ',p)
+        if r == 0 :
+            n += 1
+            print(p)
+    print('\t N_poor = ', n)
 
     
     
