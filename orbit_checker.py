@@ -135,7 +135,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     boolean_dict['IS_IN_COMET_RESULTS']         = False
     boolean_dict['IS_IN_SATELLITE_RESULTS']     = False
     boolean_dict['IS_IN_NO_RESULTS']            = not boolean_dict['IS_IN_ORBFIT_RESULTS']
-    print('orbfit_results_boolean=', orbfit_results_boolean)
+    print('boolean_dict=', boolean_dict)
     #if orbfit_results_boolean:
     #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
     #                                                                boolean_dict['IS_IN_ORBFIT_RESULTS']   )
