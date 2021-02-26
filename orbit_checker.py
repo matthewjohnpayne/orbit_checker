@@ -119,9 +119,9 @@ def check_multiple_designations( method = None , size=0 ):
     results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
     
     for r,p in zip(results, primary_designations_array):
-        if r == -1 : print(r,p)
+        if r == -1 : print('Missing',p)
     for r,p in zip(results, primary_designations_array):
-        if r == 0 : print(r,p)
+        if r == 0 : print('Poor   ',p)
 
     
     
@@ -131,8 +131,6 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     WIP
     
     '''
-    print()
-    print(unpacked_provisional_designation)
     
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
