@@ -232,7 +232,7 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
         'proc_subdir'           :       'check_obj',
         'std_epoch'             :       '59200'
     }
-    result_dict = update_wrapper.update_wrapper( arg_dict )
+    return update_wrapper.update_wrapper( arg_dict )
     
 
 def assess_quality_dict(quality_dict , boolean_dict):
@@ -290,7 +290,7 @@ def assess_result_dict(result_dict , boolean_dict):
         
     """
     
-    print(result_dict)
+    print('\nresult_dict = \n', result_dict)
     '''
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
