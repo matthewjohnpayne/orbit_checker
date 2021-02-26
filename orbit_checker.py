@@ -154,8 +154,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     if boolean_dict['IS_IN_ORBFIT_RESULTS'] :
         quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
         assess_quality_dict(quality_dict , boolean_dict)
-        for k in ['HAS_BAD_QUALITY_DICT' , 'HAS_INTERMEDIATE_QUALITY_DICT', 'HAS_GOOD_QUALITY_DICT']:
-            print(k, boolean_dict[k])
+
 
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
