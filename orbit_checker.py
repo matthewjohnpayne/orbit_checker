@@ -23,6 +23,8 @@ import json
 import glob
 
 # --------- Local imports -----------
+import mpc_convert as mc
+
 sys.path.insert(0,'/share/apps/identifications_pipeline/dbchecks/')
 import query_ids
 import db_query_orbits as query_orbs
