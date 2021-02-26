@@ -254,6 +254,9 @@ def assess_result_dict(result_dict , boolean_dict):
     for k,v in result_dict.items():
         print(k, type(v))
     print("...")
+    for k in ['baddesiglist' , 'badtrk_summary' , 'badtrkdict', 'failedfits', 'fit_summary']:
+        print(k)
+        print(result_dict[k])
 
 
 if __name__ == '__main__':
