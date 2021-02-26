@@ -297,8 +297,9 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     for k,v in result_dict.items():
         print(k)
     if packed in result_dict:
+        print('result_dict[packed]...')
         for k,v in result_dict[packed].items():
-            print(k,v)
+            print(k)
     else:
         print(packed, " is NOT in result_dict ")
         
