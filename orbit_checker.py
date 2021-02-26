@@ -137,8 +137,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     boolean_dict['IS_IN_COMET_RESULTS']         = False
     boolean_dict['IS_IN_SATELLITE_RESULTS']     = False
     boolean_dict['IS_IN_NO_RESULTS']            = not boolean_dict['IS_IN_ORBFIT_RESULTS']
-    print('boolean_dict=', boolean_dict)
-    #if orbfit_results_boolean:
+    #if boolean_dict['IS_IN_ORBFIT_RESULTS']:
     #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
     #                                                                boolean_dict['IS_IN_ORBFIT_RESULTS']   )
     
@@ -256,6 +255,12 @@ def assess_result_dict(result_dict , boolean_dict):
     for k,v in result_dict.items():
         print(k, type(v))
     print("...")
+    
+    if 'K15XM9X' in result_dict:
+        for key, val in result_dict['K15XM9X'].items() :
+            print(key, type(val), val )
+            print()
+    
     for k in ['baddesiglist' , 'badtrk_summary' , 'badtrkdict', 'failedfits', 'fit_summary', 'goodfits', 'obs_summary', 'top_level', 'weakfits']:
         print(k)
         print(result_dict[k])
