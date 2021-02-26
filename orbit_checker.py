@@ -116,10 +116,13 @@ def check_multiple_designations( method = None , size=0 ):
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
     
     # Cycle through each of the designations and run a check on each designation
-    for desig in primary_designations_array:
-        check_single_designation( desig , dbConnIDs, dbConnOrbs)
+    results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
     
-    
+    for r,p in zip(results, primary_designations_array):
+        if r == -1 : print(r,p)
+    for r,p in zip(results, primary_designations_array):
+        if r == 0 : print(r,p)
+
     
     
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
@@ -168,13 +171,13 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     if FIX:
         pass
 
-    # ...
+    # Primitive categorization
     if boolean_dict['IS_IN_NO_RESULTS'] :
-        print('IS_IN_NO_RESULTS')
+        return -1
     elif boolean_dict['HAS_BAD_QUALITY_DICT']:
-        print('HAS_BAD_QUALITY_DICT')
+        return 0
     else:
-        print()
+        return 1
     
     
     
