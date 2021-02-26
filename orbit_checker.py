@@ -260,4 +260,4 @@ def assess_result_dict(result_dict , boolean_dict):
 
 
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=1 )
+    check_multiple_designations(method = 'ALL' , size=1 )
