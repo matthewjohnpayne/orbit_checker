@@ -278,7 +278,7 @@ def assess_quality_dict(quality_dict , boolean_dict):
     return
     
     
-def assess_result_dict(result_dict , boolean_dict):
+def assess_result_dict(unpacked_provisional_designation , result_dict , boolean_dict):
     """ Assess the results retturned by orbfit
     
         Look at
@@ -289,10 +289,16 @@ def assess_result_dict(result_dict , boolean_dict):
         * MJP needs to go through this with MPan to understand the possible returns *
         
     """
-    
-    print('\n assess_result_dict...')
+    packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
+
+    print('\n assess_result_dict...', unpacked_provisional_designation, packed)
     for k,v in result_dict.items():
         print(k)
+    if packed in result_dict:
+        for k,v in result_dict[packed].items():
+            print(k,v)
+    else:
+        print(packed, " is NOT in result_dict ")
         
     
     # There can be problems w.r.t. the input generation ...
