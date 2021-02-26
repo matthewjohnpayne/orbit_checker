@@ -114,6 +114,7 @@ def check_multiple_designations( method = None , size=0 ):
         
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
+    print(f'Checking N={len(primary_designations_array)} designations')
     
     # Cycle through each of the designations and run a check on each designation
     results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
