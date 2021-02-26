@@ -34,6 +34,7 @@ sys.path.insert(0,'/sa/orbit_pipeline/')
 
 
 # Codes to define possible orbit/designation "status"
+"""
 status_dict = {
     0   :  "Not a primary designation",
     
@@ -49,6 +50,7 @@ status_dict = {
     21  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
     29  : "Orbit Exists: As yet unclassified",
 }
+"""
 
 # Alternative way of define possible orbit/designation "status"
 boolean_dict = {
@@ -144,8 +146,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
     quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
     assess_quality_dict(quality_dict , boolean_dict)
-    print('quality_dict', quality_dict)
-    print('boolean_dict',status_dict)
+    print('boolean_dict',boolean_dict)
     
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     #result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
