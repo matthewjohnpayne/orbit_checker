@@ -272,10 +272,19 @@ def assess_result_dict(result_dict , boolean_dict):
         ORBFIT_SUCCESS = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
     print('ORBFIT_SUCCESS = ',ORBFIT_SUCCESS )
+    
     # Assuming we have some sort of success, then look for bad-tracklets
     if ORBFIT_SUCCESS and result_dict['badtrkdict']:
         BAD_TRACKLETS_EXIST = True
-        print( "result_dict['badtrkdict']=" , result_dict['badtrkdict'] )
+        print( "BAD_TRACKLETS_EXIST : " , result_dict['badtrkdict'] )
+        
+    # Let's look for the quality dict ...
+    if ORBFIT_SUCCESS:
+        for k,v in result_dict.items():
+            if isinstance(v, dict):
+                print(k)
+                for key,val in v.items():
+                    print('\t',key)
 
 if __name__ == '__main__':
     check_multiple_designations(method = 'ALL' , size=1 )
