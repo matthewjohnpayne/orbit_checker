@@ -93,7 +93,7 @@ def check_multiple_designations( method = None , size=0 ):
 
 
     # Setting up a default array for development ...
-    primary_designations_array = np.array( ['2016 EN210'])#, '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
+    primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
 
 
     # Get a list of primary designations from the current_identifications table in the database
