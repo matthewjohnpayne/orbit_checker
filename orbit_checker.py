@@ -64,7 +64,7 @@ boolean_dict = {
 'IS_IN_SATELLITE_RESULTS'         : False,
 'IS_IN_NO_RESULTS'                : False,
 
-# If has orbfit results, what is overall summary of the "quality-json"
+# If has orbfit results in table, what is overall summary of the "quality-json"
 'HAS_BAD_QUALITY_DICT'            : False,
 'HAS_INTERMEDIATE_QUALITY_DICT'   : False,
 'HAS_GOOD_QUALITY_DICT'           : False,
@@ -255,27 +255,24 @@ def assess_result_dict(result_dict , boolean_dict):
         * MJP needs to go through this with MPan to understand the possible returns *
         
     """
-    print('In *assess_result_dict* ...')
-    for k,v in result_dict.items():
-        print(k, type(v), v)
-    print("...")
-    
     
     # There can be problems w.r.t. the input generation ...
-    if 'K15XM9X' in result_dict:
-        for key, val in result_dict['K15XM9X'].items() :
-            print(key, type(val) )
-            if isinstance( val, bool): print(':\t'*4, val)
-            print()
-            
-        print("...")
-        for k,v in result_dict.items():
-            print(k, type(v), v)
+    # *** Need to discuss with MPan how to interpret ***
+    # The known failure is K15XM9X == 2015 XX229
+    #
+    # If certain keys are absent, => didn't run => look for set-up failure ...
+    # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
+    ORBFIT_SUCCESS = False if 'failedfits' not in result_dict else True
+        
+    # Perhaps it ran but we get an explicit indicate of failure
+    if ORBFIT_SUCCESS:
+        ORBFIT_SUCCESS = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
-    for k in ['baddesiglist' , 'badtrk_summary' , 'badtrkdict', 'failedfits', 'fit_summary', 'goodfits', 'obs_summary', 'top_level', 'weakfits']:
-        print(k)
-        print(result_dict[k])
-
+    print('ORBFIT_SUCCESS = ',ORBFIT_SUCCESS )
+    # Assuming we have some sort of success, then look for bad-tracklets
+    if ORBFIT_SUCCESS and result_dict['badtrkdict']:
+        BAD_TRACKLETS_EXIST = True
+        print( "result_dict['badtrkdict']=" , result_dict['badtrkdict'] )
 
 if __name__ == '__main__':
     check_multiple_designations(method = 'ALL' , size=1 )
