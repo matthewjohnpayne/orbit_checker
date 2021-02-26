@@ -144,9 +144,10 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
-    quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
-    assess_quality_dict(quality_dict , boolean_dict)
-    print('boolean_dict',boolean_dict)
+    if boolean_dict['IS_IN_ORBFIT_RESULTS'] :
+        quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
+        assess_quality_dict(quality_dict , boolean_dict)
+        print('boolean_dict',boolean_dict)
     
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
     result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
@@ -251,6 +252,7 @@ def assess_result_dict(result_dict , boolean_dict):
         (i)  Bad Tracklet Dict
         (ii) Overall Quality Dict
     """
+    print('In *assess_result_dict* ...')
     for k,v in result_dict.items():
         print(k, type(v))
     print("...")
