@@ -319,7 +319,7 @@ def assess_result_dict(result_dict , boolean_dict):
     'weak fit, no chisq' : there is an orbit, but Orbfit thought it was too shaky to trust a chisq calculation
     'no fit' : Orbfit couldn't get a fit
     """
-    if ORBFIT_SUCCESS:
+    if SUCCESSFUL_ORBFIT_EXECUTION:
         for k,v in result_dict.items():
             if isinstance(v, dict) and 'fit_status' in v:
                 fit_status = v['fit_status']
