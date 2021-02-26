@@ -294,7 +294,7 @@ def assess_result_dict(result_dict , boolean_dict):
     for k,v in result_dict.items():
         print(k)
         
-    '''
+    
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
     # The known failure is K15XM9X == 2015 XX229
@@ -333,7 +333,7 @@ def assess_result_dict(result_dict , boolean_dict):
         
                 if HAS_BAD_TRACKLETS:
                     print( "BAD_TRACKLETS_EXIST : " , result_dict['badtrkdict'] )
-    '''
+    
                         
 
                        
