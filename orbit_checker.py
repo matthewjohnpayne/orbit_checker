@@ -27,7 +27,7 @@ import mpc_convert as mc
 
 sys.path.insert(0,'/share/apps/identifications_pipeline/dbchecks/')
 import query_ids
-import db_query_orbits as query_orbs
+import db_query_orbits_dev as query_orbs
 
 sys.path.insert(0,'/sa/orbit_pipeline/')
 import update_wrapper
