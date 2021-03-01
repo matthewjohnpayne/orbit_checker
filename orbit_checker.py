@@ -108,9 +108,9 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        #pass
-        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
-        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
+        pass
+        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        #primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
 
     # Choose a random subset
     if method == 'RANDOM':
@@ -381,4 +381,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=100 )
+    check_multiple_designations(method = 'ALL' , size=20 )
