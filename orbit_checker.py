@@ -54,6 +54,7 @@ status_dict = {
 """
 
 # Alternative way of define possible orbit/designation "status"
+# Need to go back-and-forth with Margaret to define a list of all possible failure modes / metrics / etc
 boolean_dict = {
 
     # Overall designation status
@@ -89,6 +90,9 @@ boolean_dict = {
 def check_multiple_designations( method = None , size=0 ):
     """
     Outer loop-function to allow us to check a long list of designations
+     - Most of the code in here is just to create some lists of designations to check
+     
+    
     """
     
     # Setting up connection objects...
@@ -120,7 +124,8 @@ def check_multiple_designations( method = None , size=0 ):
     # Current return is rather primitive
     results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
     
-    # Primitive categorization ...
+    # Primitive categorization:
+    # - Doing this purely to facilitate having a pretty print-out
     print('Missing...')
     n = 0
     for r,p in zip(results, primary_designations_array):
@@ -143,7 +148,9 @@ def check_multiple_designations( method = None , size=0 ):
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
     Do a bunch of checks on a single designation
-    WIP
+    WIP Code:
+    (i) does not yet perform all required checks
+    (ii) does not permany many/any db updates
     
     '''
     
@@ -364,4 +371,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=1000 )
+    check_multiple_designations(method = 'RANDOM' , size=100 )
