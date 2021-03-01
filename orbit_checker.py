@@ -190,7 +190,6 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
         assess_result_dict(unpacked_provisional_designation , result_dict )
-        print(result_dict)
         print()
 
     
@@ -351,7 +350,8 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         SUCCESSFUL_ORBFIT_EXECUTION = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
     print('SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
-    
+    for k,v in result_dict.items():
+        print(v, '' if SUCCESSFUL_ORBFIT_EXECUTION else v )
         
     # For whatever reason we do not have a quality-dict (must be in another piece of code)
     # But we do have a "fit_status"...
