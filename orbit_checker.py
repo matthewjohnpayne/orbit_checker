@@ -179,12 +179,20 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         assess_quality_dict(quality_dict , boolean_dict)
 
 
-    # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-    #result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+    # If no orbit at all...
+    if boolean_dict['IS_IN_NO_RESULTS'] :
+    
+        # (1) Attempt to fit the orbit using the "orbit_pipeline_wrapper"
+        ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+        result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+        print('IS_IN_NO_RESULTS', unpacked_provisional_designation)
+        
+        # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
+        assess_result_dict(unpacked_provisional_designation , result_dict )
+        print(result_dict)
+        print()
 
-    # Evaluate the result from the orbit_pipeline_wrapper & assign a status
-    #assess_result_dict(unpacked_provisional_designation , result_dict )
+    
     
     # If possible & if necessary, attempt to fix anything bad
     # E.g. status==21, ... (one or more tracklets to be dealt with) ...
