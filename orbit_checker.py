@@ -64,7 +64,7 @@ boolean_dict = {
     'IS_IN_ORBFIT_RESULTS'              : False,
     'IS_IN_COMET_RESULTS'               : False,
     'IS_IN_SATELLITE_RESULTS'           : False,
-    'IS_IN_NO_RESULTS'                  : False,
+    'HAS_NO_RESULTS'                    : False,
 
     # If has orbfit results in table, what is overall summary of the "quality-json"
     'HAS_BAD_QUALITY_DICT'              : False,
@@ -166,7 +166,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     boolean_dict['IS_IN_ORBFIT_RESULTS']        = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
     boolean_dict['IS_IN_COMET_RESULTS']         = False
     boolean_dict['IS_IN_SATELLITE_RESULTS']     = False
-    boolean_dict['IS_IN_NO_RESULTS']            = not boolean_dict['IS_IN_ORBFIT_RESULTS']
+    boolean_dict['HAS_NO_RESULTS']              = not boolean_dict['IS_IN_ORBFIT_RESULTS']
     
     #if boolean_dict['IS_IN_ORBFIT_RESULTS']:
     #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
@@ -180,9 +180,9 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
 
     # If no orbit at all...
-    if boolean_dict['IS_IN_NO_RESULTS'] :
+    if boolean_dict['HAS_NO_RESULTS'] :
         print()
-        print('IS_IN_NO_RESULTS', unpacked_provisional_designation)
+        print('HAS_NO_RESULTS', unpacked_provisional_designation)
 
         # (1) Attempt to fit the orbit using the "orbit_pipeline_wrapper"
         ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
@@ -201,7 +201,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         pass
 
     # Primitive categorization
-    if boolean_dict['IS_IN_NO_RESULTS'] :
+    if boolean_dict['HAS_NO_RESULTS'] :
         return -1
     elif boolean_dict['HAS_BAD_QUALITY_DICT']:
         return 0
