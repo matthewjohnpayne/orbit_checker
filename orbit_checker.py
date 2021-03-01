@@ -175,7 +175,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
     if boolean_dict['IS_IN_ORBFIT_RESULTS'] :
-        quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)[0]['quality_json']
+        quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
         assess_quality_dict(quality_dict , boolean_dict)
 
 

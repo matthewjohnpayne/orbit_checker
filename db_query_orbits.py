@@ -95,10 +95,17 @@ class QueryOrbfitResults():
         """
 
         # execute query and return data
-        return self.execute_query(query)
+        return self.execute_query(query)[0]['quality_json']
+        
 
     def get_orbit_row(self, unpacked_primary_desig):
-        """ Get entire for supplied desig """
+        """
+        Get entire row for supplied desig
+        
+        returns : dictionary
+         - dict_keys(['id', 'packed_primary_provisional_designation', 'unpacked_primary_provisional_designation', 'rwo_json', 'standard_epoch_json', 'mid_epoch_json', 'quality_json', 'created_at', 'updated_at'])
+         - only one dictionary will be returned (only one match)
+        """
         
         query = f"""
         SELECT to_json(t)
@@ -122,7 +129,11 @@ class QueryOrbfitResults():
         """
 
         # execute query and return data
-        return self.execute_query(query)
+        # - NB: orbit_results should be uniq on prim_desig, so only want 1 result returned
+        r = self.execute_query(query)
+        assert len(r) == 1 and isinstance(r, list), and isinstance(r[0], dict), \
+            f'There is something wrong with the query ... r = {r}, type(r)={type(r)}, len(r)={len(r)}'
+        return r
 
 
 
@@ -136,6 +147,8 @@ class QueryOrbfitResults():
     def set_orbfit_results_flags_in_primary_objects(self,
                                                 unpacked_primary_desig,
                                                 orbfit_results_boolean):
+        """
+        """
 
         update_statement = f"""
         UPDATE
