@@ -97,6 +97,33 @@ class QueryOrbfitResults():
         # execute query and return data
         return self.execute_query(query)
 
+    def get_orbit_row(self, unpacked_primary_desig):
+        """ Get entire for supplied desig """
+        
+        query = f"""
+        SELECT to_json(t)
+        FROM (
+        SELECT
+            id,
+            packed_primary_provisional_designation,
+            unpacked_primary_provisional_designation,
+            rwo_json,
+            standard_epoch_json,
+            mid_epoch_json,
+            quality_json,
+            created_at,
+            updated_at
+        FROM
+            orbfit_results
+        WHERE
+             unpacked_primary_provisional_designation = '{unpacked_primary_desig}'
+        ) as t
+        ;
+        """
+
+        # execute query and return data
+        return self.execute_query(query)
+
 
 
 
