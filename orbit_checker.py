@@ -327,6 +327,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
 
     print('\n assess_result_dict...', unpacked_provisional_designation, packed)
+    '''
     for k,v in result_dict.items():
         print(k)
     if packed in result_dict:
@@ -335,7 +336,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             print(k)
     else:
         print(packed, " is NOT in result_dict ")
-        
+    '''
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
