@@ -131,39 +131,10 @@ class QueryOrbfitResults():
         # execute query and return data
         # - NB: orbit_results should be uniq on prim_desig, so only want 1 result returned
         r = self.execute_query(query)
-        assert len(r) == 1 and isinstance(r, list), and isinstance(r[0], dict), \
+        assert len(r) == 1 and isinstance(r, list) and isinstance(r[0], dict), \
             f'There is something wrong with the query ... r = {r}, type(r)={type(r)}, len(r)={len(r)}'
         return r
 
 
 
 
-    # --------------------------------
-    # --------------------------------
-    # Update queries
-    # --------------------------------
-    # --------------------------------
-
-    def set_orbfit_results_flags_in_primary_objects(self,
-                                                unpacked_primary_desig,
-                                                orbfit_results_boolean):
-        """
-        """
-
-        update_statement = f"""
-        UPDATE
-             primary_objects
-        SET
-             orbfit_results = {     orbfit_results_boolean },
-             no_orbit       = { not orbfit_results_boolean }
-        WHERE
-             unpacked_primary_provisional_designation = '{ unpacked_primary_desig }'
-        """
-
-        try:
-            self.dbCur.execute(update_statement)
-        except (Exception, psycopg2.Error) as error :
-            error_message = "Error while updating primary_objects tables :%r" % error
-            self.deal_with_error(error_message)
-
-        self.dbConn.commit()
