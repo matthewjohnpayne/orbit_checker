@@ -132,7 +132,7 @@ class QueryOrbfitResults():
         # - NB: orbit_results should be uniq on prim_desig, so only want 1 result returned
         r = self.execute_query(query)
         if len(r) == 1 and isinstance(r, list) and isinstance(r[0], dict):
-            return r
+            return r[0]
         else:
             return False
 
