@@ -79,7 +79,9 @@ class QueryOrbfitResults():
 
 
     def get_quality_json(self, unpacked_primary_desig):
-        """ Get quality-json for supplied desig """
+        """
+        Get quality-json for supplied desig
+        """
         
         query = f"""
         SELECT to_json(t)
