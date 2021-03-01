@@ -131,10 +131,10 @@ class QueryOrbfitResults():
         # execute query and return data
         # - NB: orbit_results should be uniq on prim_desig, so only want 1 result returned
         r = self.execute_query(query)
-        assert len(r) == 1 and isinstance(r, list), and isinstance(r[0], dict), \
-            f'There is something wrong with the query ... r = {r}, type(r)={type(r)}, len(r)={len(r)}'
-        return r
-
+        if len(r) == 1 and isinstance(r, list) and isinstance(r[0], dict):
+            return r
+        else:
+            return False
 
 
 
