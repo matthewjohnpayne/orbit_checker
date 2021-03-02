@@ -326,7 +326,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
 
     print('\n assess_result_dict...', unpacked_provisional_designation, packed)
-    '''
+    
     for k,v in result_dict.items():
         print(k)
     if packed in result_dict:
@@ -335,7 +335,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             print(k)
     else:
         print(packed, " is NOT in result_dict ")
-    '''
+    
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
@@ -378,6 +378,23 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
                     print( "BAD_TRACKLETS_EXIST : " , result_dict['badtrkdict'] )
     
                         
+                        
+
+def write_orbit_to_db():
+    """
+    
+    old code call from orbfit_pipeline_wrapper_insert.py ...
+    save_summary = save.main(   objlist,
+                                file_list=['eq0','eq1','rwo'],
+                                table_name='orbfit_results',
+                                feldir=elements_dir,
+                                obsdir=obs_dir,
+                                timestamp=timestamp)
+
+
+    """
+    
+    
 
                        
 if __name__ == '__main__':
