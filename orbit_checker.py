@@ -333,7 +333,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         print('result_dict[packed]...')
         for k,v in result_dict[packed].items():
             print(k)
-        print('obslist:', result_dict[packed]   ['obslist'])
+        print('fit_status:', result_dict[packed]['fit_status'])
     else:
         print(packed, " is NOT in result_dict ")
     
