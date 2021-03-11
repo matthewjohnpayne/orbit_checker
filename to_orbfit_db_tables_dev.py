@@ -318,7 +318,7 @@ def main(   primdesiglist,
         print('looping within *to_orbfit_db_tables_dev.main()* :', desig)
         
         # MJP 2021-03-02 : Adding functionality to read dictionaries direct from input
-        if filedictlist is not None and len(filedictlist) = len(primdesiglist) and isinstance( filedictlist[n] , dict ):
+        if filedictlist is not None and len(filedictlist) == len(primdesiglist) and isinstance( filedictlist[n] , dict ):
             # Read dictionaries direct from input
             # Not really doing anything much, as the data is mainly/totally present in the desired manner ...
             print(' ~if statement ...')
