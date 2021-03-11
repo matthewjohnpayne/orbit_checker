@@ -329,14 +329,15 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     
     for k,v in result_dict.items():
         print(k)
+    print('*'*22)
     if packed in result_dict:
         print('result_dict[packed]...')
         for k,v in result_dict[packed].items():
             print(k)
-        print('fit_status:', result_dict[packed]['fit_status'])
     else:
         print(packed, " is NOT in result_dict ")
-    
+    print('*'*22)
+
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
@@ -355,7 +356,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         print(k, '' if SUCCESSFUL_ORBFIT_EXECUTION else v )
         
     # For whatever reason we do not have a quality-dict (must be in another piece of code)
-    # But we do have a "fit_status"...
+    # But we do have a "`fit_status`"...
     """
     'fit_status' : string describing outcome of fit
     'no problems' : good fit
