@@ -325,6 +325,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     """
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
 
+    '''
     print('\n assess_result_dict...', unpacked_provisional_designation, packed)
     
     for k,v in result_dict.items():
@@ -337,7 +338,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     else:
         print(packed, " is NOT in result_dict ")
     print('*'*22)
-
+    '''
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
@@ -351,10 +352,14 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     if SUCCESSFUL_ORBFIT_EXECUTION:
         SUCCESSFUL_ORBFIT_EXECUTION = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
-    print('SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
-    for k,v in result_dict.items():
-        print(k, '' if SUCCESSFUL_ORBFIT_EXECUTION else v )
-        
+    print('Boolean SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
+    
+    if SUCCESSFUL_ORBFIT_EXECUTION:
+        if packed in result_dict:
+            # Call the code to insert the results into the database
+            to_db.main( [packed] , filedictlist=[result_dict[packed]] )
+            
+    '''
     # For whatever reason we do not have a quality-dict (must be in another piece of code)
     # But we do have a "`fit_status`"...
     """
@@ -364,7 +369,6 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     'weak fit, no chisq' : there is an orbit, but Orbfit thought it was too shaky to trust a chisq calculation
     'no fit' : Orbfit couldn't get a fit
     """
-    if SUCCESSFUL_ORBFIT_EXECUTION:
         for k,v in result_dict.items():
             if isinstance(v, dict) and 'fit_status' in v:
                 fit_status = v['fit_status']
@@ -378,7 +382,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         
                 if HAS_BAD_TRACKLETS:
                     print( "BAD_TRACKLETS_EXIST : " , result_dict['badtrkdict'] )
-    
+    '''
                         
                         
 

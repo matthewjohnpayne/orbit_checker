@@ -170,7 +170,7 @@ def load_orbfit_files(desig,file_list,count_dict,feldir='neofitels/',obsdir='res
 
     return filedict,count_dict
     
-def load_supplied_dict(filedict) :
+def load_supplied_dict(resultdict, count_dict) :
     '''
         New routine by MJP to allow direct input of dictionaries (rather than file read)
         
@@ -182,12 +182,16 @@ def load_supplied_dict(filedict) :
         
         Input(s)
         --------
-        filedict: dictionary
-         - ...
+        resultdict: dictionary
+         - Must contain keys: ['fit_status','eq0dict','eq1dict','rwodict']
+         - Corresponding values must be of type [str, dictt, dict, dict]
          
         Returns
         -------
-        ...
+        outdict : dict
+            - Basically a subset of resultdict
+        count_dict : dict
+            - At this stage in development this is a simple pass-through of the input count_dict
          
     '''
     
@@ -196,13 +200,15 @@ def load_supplied_dict(filedict) :
     # ... (2) contains multitudes ...
     # NB May not be necessary to ultimately have all of these checks, but it is useful to me
     #    while developing with multi-day "gaps" to have explicit reminders of the data structure
-    assert isinstance(filedict, dict)
-    for key in ['fit_status']:
-        assert key in filedict
+    assert isinstance(resultdict, dict)
+    for key, typ in zip( ['fit_status','eq0dict','eq1dict','rwodict'] , [str, dict, dict, dict] ):
+        assert key in resultdict
+        assert isinstance(resultdict[key], typ)
         
-    #
-    
-    return True
+    # Pass the eq* & rwo dicts directly into "outdict'
+    outdict = {k:resultdict[k] for k in ['eq0dict','eq1dict','rwodict'] }
+        
+    return outdict, count_dict
     
     
 
@@ -284,7 +290,7 @@ def check_fel_quality(feldict):
 def main(   primdesiglist,
             file_list=['eq0','eq1','rwo'],
             table_name='orbfit_results',
-            feldir='neofitels/',
+            feldir='neofitelss/',
             obsdir='res/',
             timestamp='',
             addpardict=None,
@@ -309,12 +315,13 @@ def main(   primdesiglist,
     # for each object fitted, check fit output, construct quality dictionary, upsert results
     for n, desig in enumerate(primdesiglist):
 
-        print(desig)
+        print('looping within *to_orbfit_db_tables_dev.main()* :', desig)
         
         # MJP 2021-03-02 : Adding functionality to read dictionaries direct from input
         if filedictlist is not None and len(filedictlist) = len(primdesiglist) and isinstance( filedictlist[n] , dict ):
-            # Read dictionaries direct from input:
-            # NB: mainly using function to sort out the count_dict
+            # Read dictionaries direct from input
+            # Not really doing anything much, as the data is mainly/totally present in the desired manner ...
+            print(' ~if statement ...')
             filedict,count_dict = load_supplied_dict( filedictlist[n] , count_dict)
         else:
             # load orbfit results files into python
