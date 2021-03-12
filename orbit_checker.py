@@ -114,7 +114,7 @@ def check_multiple_designations( method = None , size=0 ):
         # make into an array
         # filter-out "/" which we see in satellites (currently causes update-wrapper to crash)
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
-        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  and "A" != d['unpacked_primary_provisional_designation'][0] and '2014 QT388' not in d['unpacked_primary_provisional_designation']] )
+        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  and "A" != d['unpacked_primary_provisional_designation'][0] and d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] ] )
 
     # Choose a random subset
     if method == 'RANDOM':
