@@ -353,4 +353,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=20000 )
+    check_multiple_designations(method = 'RANDOM' , size=200000 )
