@@ -105,15 +105,17 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        primary_designations_list_of_dicts =  ['2015 BC470', '2016 QW66']
-        #print("\n... Searching db for all primary designations ... ")
-        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        primary_designations_list_of_dicts =  np.array(['2015 BC470', '2016 QW66'])
+        '''
+        print("\n... Searching db for all primary designations ... ")
+        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
         # make into an array
         # filter-out "/" which we see in satellites (currently causes update-wrapper to crash)
-        # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash # and "A" != d['unpacked_primary_provisional_designation'][0] 
-        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  ] )
-
+        # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
+        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  and "A" != d['unpacked_primary_provisional_designation'][0] ] )
+        '''
+        
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
