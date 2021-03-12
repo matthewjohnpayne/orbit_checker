@@ -105,6 +105,7 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
+        '''
         primary_designations_array =  np.array(['2015 BC470', '2016 QW66'])
         '''
         print("\n... Searching db for all primary designations ... ")
@@ -114,7 +115,6 @@ def check_multiple_designations( method = None , size=0 ):
         # filter-out "/" which we see in satellites (currently causes update-wrapper to crash)
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
         primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  and "A" != d['unpacked_primary_provisional_designation'][0] ] )
-        '''
         
     # Choose a random subset
     if method == 'RANDOM':
@@ -200,7 +200,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         return 2
     
     
-    
+'''
 def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation):
     """
     # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
@@ -236,7 +236,7 @@ def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
     with open(result_json) as rj:
         result_dict = json.load(rj)
     return result_dict
-    
+'''
     
 def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     """
@@ -353,4 +353,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=2 )
+    check_multiple_designations(method = 'RANDOM' , size=20000 )
