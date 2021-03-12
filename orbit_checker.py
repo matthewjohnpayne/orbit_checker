@@ -107,7 +107,7 @@ def check_multiple_designations( method = None , size=0 ):
     if method in ['ALL' ,'RANDOM']:
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
-        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
+        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation'] ] )
 
     # Choose a random subset
     if method == 'RANDOM':
