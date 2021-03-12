@@ -183,7 +183,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
         assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
-    
+        print('\n:assessment_dict:',assessment_dict)
     
     # if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
     if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
