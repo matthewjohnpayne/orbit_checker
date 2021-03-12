@@ -320,26 +320,13 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         I feel like some of this must be duplicating logic in Margaret's code
         
     """
+    # For whatever reason, the fit-wrapper returns packed designation
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
 
-    '''
-    print('\n assess_result_dict...', unpacked_provisional_designation, packed)
-    
-    for k,v in result_dict.items():
-        print(k)
-    print('*'*22)
-    if packed in result_dict:
-        print('result_dict[packed]...')
-        for k,v in result_dict[packed].items():
-            print(k)
-    else:
-        print(packed, " is NOT in result_dict ")
-    print('*'*22)
-    '''
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
-    # The known failure is K15XM9X == 2015 XX229
+    # An example known failure is K15XM9X == 2015 XX229
     #
     # If certain keys are absent, => didn't run => look for set-up failure ...
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
@@ -356,47 +343,8 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             # Call the code to insert the results into the database
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
             
-    '''
-    # For whatever reason we do not have a quality-dict (must be in another piece of code)
-    # But we do have a "`fit_status`"...
-    """
-    'fit_status' : string describing outcome of fit
-    'no problems' : good fit
-    'N bad tracklet(s)' : good fit but some obs are far off (>10 arcsec) and should be dissociated
-    'weak fit, no chisq' : there is an orbit, but Orbfit thought it was too shaky to trust a chisq calculation
-    'no fit' : Orbfit couldn't get a fit
-    """
-        for k,v in result_dict.items():
-            if isinstance(v, dict) and 'fit_status' in v:
-                fit_status = v['fit_status']
-                print('fit_status', fit_status)
-                
-                SUCCESSFUL_ORBIT_GENERATION = False if fit_status == 'no fit' else True
-                HAS_BAD_TRACKLETS           = True  if fit_status == 'N bad tracklet(s)' else False
-                HAS_WEAK_ORBIT_FIT          = True  if fit_status == 'weak fit, no chisq' else False
 
-
-        
-                if HAS_BAD_TRACKLETS:
-                    print( "BAD_TRACKLETS_EXIST : " , result_dict['badtrkdict'] )
-    '''
-                        
-                        
-
-def write_orbit_to_db():
-    """
-    
-    old code call from orbfit_pipeline_wrapper_insert.py ...
-    save_summary = save.main(   objlist,
-                                file_list=['eq0','eq1','rwo'],
-                                table_name='orbfit_results',
-                                feldir=elements_dir,
-                                obsdir=obs_dir,
-                                timestamp=timestamp)
-
-
-    """
-    
+  
     
 
                        
