@@ -185,9 +185,9 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
         print('\n:assessment_dict:',assessment_dict)
     
-    # if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
-    if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
-        print('.. Ideally would try IOD ...')
+        # if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
+        if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
+            print('.. Ideally would try IOD ...')
         
     # Primitive categorization
     if boolean_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
