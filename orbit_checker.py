@@ -105,7 +105,7 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        primary_designations_list_of_dicts =  np.array(['2015 BC470', '2016 QW66'])
+        primary_designations_array =  np.array(['2015 BC470', '2016 QW66'])
         '''
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
