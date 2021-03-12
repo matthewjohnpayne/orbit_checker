@@ -336,7 +336,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     if SUCCESSFUL_ORBFIT_EXECUTION:
         SUCCESSFUL_ORBFIT_EXECUTION = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
-    print('Boolean SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
+    print('SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
     
     if SUCCESSFUL_ORBFIT_EXECUTION:
         if packed in result_dict:

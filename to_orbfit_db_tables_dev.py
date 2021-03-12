@@ -310,7 +310,7 @@ def main(   primdesiglist,
     # for each object fitted, check fit output, construct quality dictionary, upsert results
     for n, desig in enumerate(primdesiglist):
 
-        print('looping within *to_orbfit_db_tables_dev.main()* :', desig)
+        print('\n Attempting to insert to orbfit_results for: ', desig)
         
         # Read dictionaries direct from input
         # Not really doing anything much, as the data is mainly/totally present in the desired manner ...
