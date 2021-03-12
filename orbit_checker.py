@@ -102,15 +102,12 @@ def check_multiple_designations( method = None , size=0 ):
     dbConnOrbs = query_orbs.QueryOrbfitResults()
 
 
-    # Setting up a default array for development ...
-    primary_designations_array = np.array( ['2016 EN210', '2009 DU157', '2015 XB53', '2015 XX229', '2011 BU37'] )
-
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        pass
-        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
-        #primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
+        print("\n... Searching db for all primary designations ... ")
+        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts ] )
 
     # Choose a random subset
     if method == 'RANDOM':
@@ -404,4 +401,4 @@ def write_orbit_to_db():
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'ALL' , size=20 )
+    check_multiple_designations(method = 'RANDOM' , size=20 )
