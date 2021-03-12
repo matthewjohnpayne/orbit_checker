@@ -340,7 +340,8 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     
     else:
         print('\n SUCCESSFUL_ORBFIT_EXECUTION=',SUCCESSFUL_ORBFIT_EXECUTION)
-        for k,v in result_dict.items():
+        desig_result_dict = result_dict[packed]
+        for k,v in desig_result_dict.items():
             print(k,v)
             
 
