@@ -346,9 +346,10 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
     
     else:
-        print('\n SUCCESSFUL_ORBFIT_EXECUTION=',result['SUCCESSFUL_ORBFIT_EXECUTION'])
         result.update(result_dict)
-        for k,v in desig_result_dict.items():
+
+        print('\n SUCCESSFUL_ORBFIT_EXECUTION=',result['SUCCESSFUL_ORBFIT_EXECUTION'])
+        for k,v in result.items():
             print(k,v)
             
 
