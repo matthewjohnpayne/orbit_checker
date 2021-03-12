@@ -182,18 +182,17 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
-        SUCCESSFUL_ORBFIT_EXECUTION = assess_result_dict(unpacked_provisional_designation , result_dict )
+        assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
     
     
-    # If possible & if necessary, attempt to fix anything bad
-    # E.g. status==21, ... (one or more tracklets to be dealt with) ...
-    if FIX:
-        pass
-
+    # if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
+    if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
+        print('.. Ideally would try IOD ...')
+        
     # Primitive categorization
-    if boolean_dict['HAS_NO_RESULTS'] and not SUCCESSFUL_ORBFIT_EXECUTION:
+    if boolean_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return -1
-    if boolean_dict['HAS_NO_RESULTS'] and SUCCESSFUL_ORBFIT_EXECUTION:
+    if boolean_dict['HAS_NO_RESULTS'] and assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return 1
     elif boolean_dict['HAS_BAD_QUALITY_DICT']:
         return 0
@@ -314,6 +313,16 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         * MJP needs to go through this with MPan to understand the possible returns/failures *
                 
     """
+    
+    # Setting default values
+    result = {
+        'SUCCESSFUL_ORBFIT_EXECUTION'   : None,
+        'INPUT_GENERATION_SUCCESS'      : None,
+        'enough_obs'                    : None,
+        'existing_orbit'                : None,
+        'new_obs_in_db'                 : None
+    }
+            
     # For whatever reason, the fit-wrapper returns packed designation
     packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
 
@@ -324,26 +333,26 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     #
     # If certain keys are absent, => didn't run => look for set-up failure ...
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
-    SUCCESSFUL_ORBFIT_EXECUTION = False if 'failedfits' not in result_dict else True
+    result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
         
     # Perhaps it ran but we get an explicit indicate of failure
-    if SUCCESSFUL_ORBFIT_EXECUTION:
-        SUCCESSFUL_ORBFIT_EXECUTION = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
+    if result['SUCCESSFUL_ORBFIT_EXECUTION']:
+            result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
     
-    if SUCCESSFUL_ORBFIT_EXECUTION:
+    if result['SUCCESSFUL_ORBFIT_EXECUTION']:
         if packed in result_dict:
             # Call the code to insert the results into the database
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
     
     else:
-        print('\n SUCCESSFUL_ORBFIT_EXECUTION=',SUCCESSFUL_ORBFIT_EXECUTION)
-        desig_result_dict = result_dict[packed]
+        print('\n SUCCESSFUL_ORBFIT_EXECUTION=',result['SUCCESSFUL_ORBFIT_EXECUTION'])
+        result.update(result_dict)
         for k,v in desig_result_dict.items():
             print(k,v)
             
 
-    return SUCCESSFUL_ORBFIT_EXECUTION
+    return result
     
 
                        
