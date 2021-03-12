@@ -105,9 +105,14 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        print("\n... Searching db for all primary designations ... ")
-        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
-        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation'] ] )
+        primary_designations_list_of_dicts =  ['2015 BC470', '2016 QW66']
+        #print("\n... Searching db for all primary designations ... ")
+        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        
+        # make into an array
+        # filter-out "/" which we see in satellites (currently causes update-wrapper to crash)
+        # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
+        primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if "/" not in d['unpacked_primary_provisional_designation']  and "A" != d['unpacked_primary_provisional_designation'][0] ] )
 
     # Choose a random subset
     if method == 'RANDOM':
@@ -330,6 +335,11 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
         if packed in result_dict:
             # Call the code to insert the results into the database
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
+    
+    else:
+        print('\n SUCCESSFUL_ORBFIT_EXECUTION=',SUCCESSFUL_ORBFIT_EXECUTION)
+        for k,v in result_dict.items():
+            print(k,v)
             
 
     return SUCCESSFUL_ORBFIT_EXECUTION
@@ -337,4 +347,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=2000 )
+    check_multiple_designations(method = 'RANDOM' , size=2 )
