@@ -119,26 +119,15 @@ def check_multiple_designations( method = None , size=0 ):
     
     # Cycle through each of the designations and run a check on each designation
     # Current return is rather primitive
-    results = [ check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array ]
+    results= { desig:check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array }
     
     # Primitive categorization:
     # - Doing this purely to facilitate having a pretty print-out
-    print('Missing...')
-    n = 0
-    for r,p in zip(results, primary_designations_array):
-        if r == -1 :
-            n += 1
-            print(p)
-    print('\t N_missing = ', n)
-    
-    
-    print('Poor...')
-    n = 0
-    for r,p in zip(results, primary_designations_array):
-        if r == 0 :
-            n += 1
-            print(p)
-    print('\t N_poor = ', n)
+    for value, txt in zip( [-1,1,0], ['Missing...', 'Fixed...', 'Poor...'] ):
+        desigs = [k for k,v in results if v == value]
+        print('\n'+txt)
+        print('\tN=',len(desigs))
+        for d in desigs: print(d)
 
     
     
@@ -186,9 +175,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
-        assess_result_dict(unpacked_provisional_designation , result_dict )
-        print()
-
+        SUCCESSFUL_ORBFIT_EXECUTION = assess_result_dict(unpacked_provisional_designation , result_dict )
     
     
     # If possible & if necessary, attempt to fix anything bad
@@ -197,12 +184,14 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         pass
 
     # Primitive categorization
-    if boolean_dict['HAS_NO_RESULTS'] :
+    if boolean_dict['HAS_NO_RESULTS'] and not SUCCESSFUL_ORBFIT_EXECUTION:
         return -1
+    if boolean_dict['HAS_NO_RESULTS'] and SUCCESSFUL_ORBFIT_EXECUTION:
+        return 1
     elif boolean_dict['HAS_BAD_QUALITY_DICT']:
         return 0
     else:
-        return 1
+        return 2
     
     
     
@@ -336,7 +325,6 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     if SUCCESSFUL_ORBFIT_EXECUTION:
         SUCCESSFUL_ORBFIT_EXECUTION = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
-    print('SUCCESSFUL_ORBFIT_EXECUTION = ',SUCCESSFUL_ORBFIT_EXECUTION )
     
     if SUCCESSFUL_ORBFIT_EXECUTION:
         if packed in result_dict:
@@ -344,9 +332,9 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
             
 
-  
+    return SUCCESSFUL_ORBFIT_EXECUTION
     
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=2000 )
+    check_multiple_designations(method = 'RANDOM' , size=200 )
