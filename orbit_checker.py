@@ -401,4 +401,4 @@ def write_orbit_to_db():
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=20 )
+    check_multiple_designations(method = 'RANDOM' , size=200 )
