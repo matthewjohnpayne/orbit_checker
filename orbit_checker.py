@@ -346,7 +346,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
     
     else:
-        result.update(result_dict)
+        result.update(result_dict[packed])
 
     return result
     
