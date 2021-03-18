@@ -34,6 +34,9 @@ import update_wrapper
 
 import to_orbfit_db_tables_dev as to_db
 
+import mpc_new_processing_sub_directory as newsub
+
+
 # Codes to define possible orbit/designation "status"
 """
 status_dict = {
@@ -104,7 +107,7 @@ def check_multiple_designations( method = None , size=0 ):
 
 
     # Get a list of primary designations from the current_identifications table in the database
-    if method in ['ALL' ,'RANDOM']:
+    if method in ['ALL' ,'RANDOM', 'COMET']:
         '''
         primary_designations_array =  np.array(['2014 QT388', '2015 BC470', '2016 QW66'])
         '''
@@ -112,10 +115,8 @@ def check_multiple_designations( method = None , size=0 ):
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
         # make into an array
-        # filter-out "/" which we see in satellites (currently causes update-wrapper to crash)
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
         primary_designations_array         = np.array( [ d['unpacked_primary_provisional_designation'] for d in primary_designations_list_of_dicts if \
-            "/" not in d['unpacked_primary_provisional_designation']  and \
             "A" != d['unpacked_primary_provisional_designation'][0] and \
             d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] and \
             d['unpacked_primary_provisional_designation'][-3:] != " PL" ] )
@@ -124,6 +125,10 @@ def check_multiple_designations( method = None , size=0 ):
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
         
+    # Select only comets (for now, while developing, using only C/) s...
+    if method == 'COMET':
+        primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
+
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
     print(f'Checking N={len(primary_designations_array)} designations')
@@ -183,7 +188,13 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
         # (1) Attempt to fit the orbit using the "orbit_pipeline_wrapper"
         ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
-        result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+        # Standard asteroid ...
+        if   "C/" not in unpacked_provisional_designation:
+            result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+        elif "C/" in unpacked_provisional_designation:
+            result_dict = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation)
+        else:
+            pass
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
         assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
@@ -266,6 +277,29 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     }
     return update_wrapper.update_wrapper( arg_dict )
     
+def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
+    ''' Copied from MJP's comet/process_comet.py code '''
+    
+    # comet code wants packed version ...
+    packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
+    
+    # Set up the tmp-proc-dir
+    proc_dir = newsub.generate_subdirectory( 'comets' )
+
+    # Run a fit
+    command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
+    print("Running\n", command , "...\n")
+    process = subprocess.Popen( command,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=True
+    )
+    stdout, stderr = process.communicate()
+    stdout = stdout.decode("utf-8").split('\n')
+    print('stdout', stdout)
+    # Parse the output to look for the 'success' flag ...
+    SUCCESS = True if 'succeeded' in [_ for _ in stdout if 'comet_orbits' in _ ][-1] else False
+
 
 def assess_quality_dict(quality_dict , boolean_dict):
     """ At present this is just setting one of the following booleans in the boolean_dict ...
@@ -357,4 +391,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=300000 )
+    check_multiple_designations(method = 'COMET' , size=300000 )
