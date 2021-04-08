@@ -192,7 +192,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         if   "C/" not in unpacked_provisional_designation:
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
         elif "C/" in unpacked_provisional_designation:
-            result_dict = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation)
+            SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation)
+            result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
         else:
             pass
         
@@ -287,6 +288,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
     proc_dir = newsub.generate_subdirectory( 'comets' )
 
     # Run a fit
+    # *** I THINK THIS WILL NEED TO BE CHANGED TO A PYTHON MODE CALL PRETTY SOON ***
     command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
     print("Running\n", command , "...\n")
     process = subprocess.Popen( command,
@@ -297,8 +299,111 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
     stdout, stderr = process.communicate()
     stdout = stdout.decode("utf-8").split('\n')
     print('stdout', stdout)
+    
     # Parse the output to look for the 'success' flag ...
     SUCCESS = True if 'succeeded' in [_ for _ in stdout if 'comet_orbits' in _ ][-1] else False
+    
+    return SUCCESS , proc_dir
+
+def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional_designation ):
+    '''
+    converting the comet results to dictionaries
+    
+    This needs to be added into the comet code itself
+    (or at the very least, as some kind of option afterwards)
+    *** THE AGREEMENT WITH FEDERICA IS ...
+    *** (i) upgrade the comet_orbits.py code to return
+    ***     succ, dict
+    ***     where
+    ***     succ is the current boolean
+    ***     dict is a dictionary of the output that I will add
+    ***
+    ***(ii) She/I will then also need to upgrade the "comet list" wrapper to handle that.
+    ***
+    ***(iii) The dictionaries will then be written to the db by a separate peice of code
+    
+    But for now, while developing, putting it here
+    
+    heavily following the update_wrapper.py/setup_obj_dicts code ...
+    (1) update_wrapper.update_wrapper returns *result_dict* which comes out of *run_fits*
+    (2) *update_wrapper.run_fits* adds the results of "update_existing_orbits.update_existing_orbits" into an overall result_dict
+    (3) *update_existing_orbits.update_existing_orbits* seems to
+        (a) primarily generate *result_dict* from its own *run_fits*
+        (b) format the results into results_dict using its own *save_fits*
+    (4) (a) *update_existing_orbits.run_fits* is calling orbit_update_psv.main()
+        (b) *update_existing_orbits.save_fits* goes through the results from *update_existing_orbits.run_fits* and creates result_dict[desig]['eq0dict'], result_dict[desig]['rwodict'], etc
+    '''
+
+    """
+    # I think I got this code from update_wrapper.py
+    try:
+            obslist = o2d.ades_to_dicts(subdirname+obj_name+'.ades')
+    except:
+            print(desig+' : problem with ADES obs file?')
+            obslist = []
+        try:
+            eq0dict = o2d.fel_to_dict(subdirname+obj_name+'.eq0')
+        except:
+            print(desig+' : problem with starting orbit file (eq0)?')
+            eq0dict = {}
+
+        obj_dicts[desig] = {'obslist':obslist,'eq0dict':eq0dict}
+    """
+    
+    """
+    # update_existing_orbits.save_fits()
+    def save_fits(arg_dict,result_dict,datadicts):
+
+    # write orbits/.rwo to database; write orbits/obs to flat files
+
+    subdirname = arg_dict['subdirname']
+    primdesiglist = arg_dict['primdesiglist']
+    obs_dir = subdirname+arg_dict['obs_dir']
+    elements_dir = subdirname+arg_dict['elements_dir']
+    proc_subdir = arg_dict['proc_subdir']
+    mpecfiles_dir = subdirname+arg_dict['mpecfiles_dir']
+    queue_name = arg_dict['queue_name']
+
+    fit_count = 0
+
+    # excise faulty fits from list of fitted objects; write remaining obs/orbits to database
+    datadicts = [datadict for datadict in datadicts if not (datadict['num_obs']==0 and datadict['num_obs_selected']==0 and datadict['num_rad']==0 and datadict['num_rad_selected']==0)]
+    for datadict in datadicts:
+        desig = datadict['packed_provisional_id']
+        try:
+            orbfitname = packeddes_to_orbfitdes(desig)
+            result_dict[desig]['eq0dict'] = o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
+            result_dict[desig]['eq1dict'] = o2d.fel_to_dict(elements_dir+orbfitname+'.eq1_postfit',allcoords=True)
+            result_dict[desig]['rwodict'] = o2d.rwo_to_dict(obs_dir+orbfitname+'.rwo')
+            if desig in result_dict['badtrkdict'].keys():
+                result_dict[desig]['badtrkdict'] = result_dict['badtrkdict'][desig]
+                result_dict[desig]['fit_status'] = str(len(result_dict['badtrkdict'][desig]))+' bad tracklet(s)'
+            else:
+                result_dict[desig]['fit_status'] = 'no problems'
+            fit_count += 1
+        except:
+            print(desig+' : issues with elements/rwo files')
+
+    result_dict['saver'] = 'elements and rwo converted to dictionaries for '+str(fit_count)+' objects'
+
+    return arg_dict, result_dict
+    
+    """
+
+    # loop through the comet output files that could/should exist in the processing directory
+    packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
+    orbfitname       = packeddes_to_orbfitdes(packed_cmt_desig)
+    filelist         = ['.eq0', '.eq1', '.eq2', '.eq3', '.rwo]
+    for f in filelist :
+        filepath = os.path.join(proc_dir , orbfitname + f )
+        print(filepath)
+        print(os.path.isfile(filepath))
+        if os.path.isfile(filepath):
+            if 'eq' in f:
+                o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
+            elif 'rwo' in f:
+                o2d.rwo_to_dict(obs_dir+orbfitname+'.rwo')
+    
 
 
 def assess_quality_dict(quality_dict , boolean_dict):
