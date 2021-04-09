@@ -130,7 +130,7 @@ def check_multiple_designations( method = None , size=0 ):
     if method == 'COMET':
         #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         #primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
-        primary_designations_array = np.random.choice( ['C/2020 K2' 'C/2006 M8' 'C/2010 X6' 'C/2006 Y16' 'C/2000 Y5'] , size=size, replace=False)
+        primary_designations_array = np.random.choice( ['C/2020 K2', 'C/2006 M8', 'C/2010 X6', 'C/2006 Y16', 'C/2000 Y5'] , size=size, replace=False)
 
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
