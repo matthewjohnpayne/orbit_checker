@@ -41,19 +41,24 @@ import mpc_new_processing_sub_directory as newsub
 # Codes to define possible orbit/designation "status"
 """
 status_dict = {
-    0   :  "Not a primary designation",
+    ### Negative Numbers: "Not a primary designation"
+
+    ### 0-99 Numbers    : "Orbit Absent"
+
+    001   :  "Orbit Absent: No observations exist",
+    002   :  "Orbit Absent: Insufficient observations exist to form a reasonable orbit",
+    098   :  "Orbit Absent: Orbfit Failed: Reason ",
+    099   :  "Orbit Absent: As yet unclassified",
     
-    1   :  "Orbit Absent: No observations exist",
-    2   :  "Orbit Absent: Insufficient observations exist to form a reasonable orbit",
-    9   :  "Orbit Absent: As yet unclassified",
+    ### 100-199 Numbers  : "Orbit Present but Poor"
+    100  : "Orbit Poor:   Short-Arc / Few observations",
+    101  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
+    199  : "Orbit Poor:   As yet unclassified",
     
-    10  : "Orbit Poor:   Short-Arc / Few observations",
-    11  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
-    19  : "Orbit Poor:   As yet unclassified",
-    
-    20  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
-    21  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
-    29  : "Orbit Exists: As yet unclassified",
+    ### 200-299 Numbers  : "Orbit Present and Good"
+    200  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
+    201  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
+    299  : "Orbit Exists: As yet unclassified",
 }
 """
 
@@ -147,6 +152,9 @@ def check_multiple_designations( method = None , size=0 ):
         print('\n'+txt)
         print('\tN=',len(desigs))
         for d in desigs: print(d)
+        
+        
+    # Update field(s) in the primary_objects table
 
     
     
