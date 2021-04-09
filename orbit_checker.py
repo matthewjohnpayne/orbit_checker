@@ -108,7 +108,7 @@ def check_multiple_designations( method = None , size=0 ):
 
 
     # Get a list of primary designations from the current_identifications table in the database
-    if method in ['ALL' ,'RANDOM', 'COMET']:
+    if method in ['ALL' ,'RANDOM']:
         '''
         primary_designations_array =  np.array(['2014 QT388', '2015 BC470', '2016 QW66'])
         '''
@@ -128,6 +128,7 @@ def check_multiple_designations( method = None , size=0 ):
         
     # Select only comets (for now, while developing, using only C/) s...
     if method == 'COMET':
+        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         #primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
         primary_designations_array = np.random.choice( ['C/2020 K2' 'C/2006 M8' 'C/2010 X6' 'C/2006 Y16' 'C/2000 Y5'] , size=size, replace=False)
 
