@@ -128,8 +128,8 @@ def check_multiple_designations( method = None , size=0 ):
         
     # Select only comets (for now, while developing, using only C/) s...
     if method == 'COMET':
-        primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
-        print(f"primary_designations_array[:5]=", primary_designations_array[:5] )
+        #primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
+        primary_designations_array = np.random.choice( ['C/2020 K2' 'C/2006 M8' 'C/2010 X6' 'C/2006 Y16' 'C/2000 Y5'] , size=size, replace=False)
 
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
@@ -498,4 +498,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'COMET' , size=300000 )
+    check_multiple_designations(method = 'COMET' , size=3 )
