@@ -404,7 +404,7 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
             elif 'rwo' in f:
                 o2d.rwo_to_dict(obs_dir+orbfitname+'.rwo')
     
-
+        sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
 
 def assess_quality_dict(quality_dict , boolean_dict):
     """ At present this is just setting one of the following booleans in the boolean_dict ...
