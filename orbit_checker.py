@@ -31,6 +31,7 @@ import db_query_orbits_dev as query_orbs
 
 sys.path.insert(0,'/sa/orbit_pipeline/')
 import update_wrapper
+import update_existing_orbits
 
 import to_orbfit_db_tables_dev as to_db
 
@@ -392,7 +393,7 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
 
     # loop through the comet output files that could/should exist in the processing directory
     packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
-    orbfitname       = packeddes_to_orbfitdes(packed_cmt_desig)
+    orbfitname       = update_existing_orbits.packeddes_to_orbfitdes(packed_cmt_desig)
     filelist         = ['.eq0', '.eq1', '.eq2', '.eq3', '.rwo']
     for f in filelist :
         filepath = os.path.join(proc_dir , orbfitname + f )
