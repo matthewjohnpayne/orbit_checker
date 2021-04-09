@@ -129,6 +129,7 @@ def check_multiple_designations( method = None , size=0 ):
     # Select only comets (for now, while developing, using only C/) s...
     if method == 'COMET':
         primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
+        print(f"primary_designations_array[:5]=", primary_designations_array[:5] )
 
     # Check that there is some data to work with
     assert len(primary_designations_array) > 0 , 'You probably did not supply *n*, so it defaulted to zero'
@@ -299,7 +300,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
     )
     stdout, stderr = process.communicate()
     stdout = stdout.decode("utf-8").split('\n')
-    print('stdout', stdout)
+    print('*direct_call_orbfit_comet_wrapper* ... stdout:\n', stdout)
     
     # Parse the output to look for the 'success' flag ...
     SUCCESS = True if 'succeeded' in [_ for _ in stdout if 'comet_orbits' in _ ][-1] else False
@@ -396,7 +397,7 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
     orbfitname       = update_existing_orbits.packeddes_to_orbfitdes(packed_cmt_desig)
     filelist         = ['.eq0', '.eq1', '.eq2', '.eq3', '.rwo']
     for f in filelist :
-        filepath = os.path.join(proc_dir , orbfitname + f )
+        filepath = os.path.join(proc_dir , orbfitname , orbfitname + f )
         print(filepath)
         print(os.path.isfile(filepath))
         if os.path.isfile(filepath):
