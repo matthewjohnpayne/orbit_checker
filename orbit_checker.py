@@ -507,4 +507,4 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
 
                        
 if __name__ == '__main__':
-    check_multiple_designations(method = 'COMET' , size=3 )
+    check_multiple_designations(method = 'COMET' , size=5 )
