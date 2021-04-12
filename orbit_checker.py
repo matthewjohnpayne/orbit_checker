@@ -202,8 +202,14 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         if   "C/" not in unpacked_provisional_designation:
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
         elif "C/" in unpacked_provisional_designation:
-            SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation)
-            result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
+            # Try using ades data
+            SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=False )
+            # Try again using obs80
+            if not SUCCESS:
+                SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=True )
+            # Interpret results
+            if SUCCESS:
+                result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
         else:
             pass
         
@@ -311,7 +317,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
     print('*direct_call_orbfit_comet_wrapper* ... stdout:\n', stdout)
     
     # Parse the output to look for the 'success' flag ...
-    SUCCESS = True if 'succeeded' in [_ for _ in stdout if 'comet_orbits' in _ ][-1] else False
+    SUCCESS = True if np.any([ 'comet_orbits succeeded' in _ for _ in stdout]) else False
     
     return SUCCESS , proc_dir
 
@@ -403,18 +409,20 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
     # loop through the comet output files that could/should exist in the processing directory
     packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
     orbfitname       = update_existing_orbits.packeddes_to_orbfitdes(packed_cmt_desig)
-    filelist         = ['.eq0', '.eq1', '.eq2', '.eq3', '.rwo']
-    for f in filelist :
-        filepath = os.path.join(proc_dir , orbfitname , orbfitname + f )
-        print(filepath)
-        print(os.path.isfile(filepath))
-        if os.path.isfile(filepath):
-            if 'eq' in f:
-                o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
-            elif 'rwo' in f:
-                o2d.rwo_to_dict(obs_dir+orbfitname+'.rwo')
+    eq_filelist      = ['.eq0_postfit', '.eq1_postfit', '.eq2_postfit', '.eq3_postfit']
+    rwo_file         = '.rwo'
     
-        sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
+    # Read the eq* files
+    for f in eq_filelist :
+        filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + f )
+        print(os.path.isfile(filepath) , ' : ', filepath)
+        if os.path.isfile(filepath):
+            o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
+    # Read the rwo file
+    filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + rwo_file )
+    o2d.rwo_to_dict(filepath)
+    
+    sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
 
 def assess_quality_dict(quality_dict , boolean_dict):
     """ At present this is just setting one of the following booleans in the boolean_dict ...
