@@ -44,16 +44,15 @@ status_dict = {
     ### Negative Numbers: "Not a primary designation"
 
     ### 0-99 Numbers    : "Orbit Absent"
-
-    001   :  "Orbit Absent: No observations exist",
-    002   :  "Orbit Absent: Insufficient observations exist to form a reasonable orbit",
-    098   :  "Orbit Absent: Orbfit Failed: Reason ",
-    099   :  "Orbit Absent: As yet unclassified",
+    001  :  "Orbit Absent: No known observations",
+    002  :  "Orbit Absent: Orbfit Failed: Insufficient observations exist to form any orbit",
+    009  :  "Orbit Absent: Orbfit Failed: Reason unknown",
+    099  :  "Orbit Absent: Reason for absence has not been established",
     
     ### 100-199 Numbers  : "Orbit Present but Poor"
     100  : "Orbit Poor:   Short-Arc / Few observations",
     101  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
-    199  : "Orbit Poor:   As yet unclassified",
+    199  : "Orbit Poor:   Reason for poor orbit has not been established",
     
     ### 200-299 Numbers  : "Orbit Present and Good"
     200  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
@@ -300,7 +299,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
 
     # Run a fit
     # *** I THINK THIS WILL NEED TO BE CHANGED TO A PYTHON MODE CALL PRETTY SOON ***
-    command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
+    command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --obsfile ades --directory {proc_dir}"
     print("Running\n", command , "...\n")
     process = subprocess.Popen( command,
                                 stdout=subprocess.PIPE,
