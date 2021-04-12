@@ -310,7 +310,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation , FORCEOBS
     proc_dir = newsub.generate_subdirectory( 'comets' )
 
     # Run a fit
-    print('FORCEOBS80 = '. FORCEOBS80)
+    print('FORCEOBS80 = ', FORCEOBS80)
     if FORCEOBS80:
         command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
     else:
