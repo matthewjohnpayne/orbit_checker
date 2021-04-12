@@ -294,7 +294,7 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     }
     return update_wrapper.update_wrapper( arg_dict )
     
-def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
+def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation , FORCEOBS80=False):
     ''' Copied from MJP's comet/process_comet.py code '''
     
     # comet code wants packed version ...
@@ -304,8 +304,11 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation):
     proc_dir = newsub.generate_subdirectory( 'comets' )
 
     # Run a fit
-    # *** I THINK THIS WILL NEED TO BE CHANGED TO A PYTHON MODE CALL PRETTY SOON ***
-    command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --obsfile ades --directory {proc_dir}"
+    if FORCEOBS80:
+        command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
+    else:
+        command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --obsfile ades --directory {proc_dir}"
+
     print("Running\n", command , "...\n")
     process = subprocess.Popen( command,
                                 stdout=subprocess.PIPE,
