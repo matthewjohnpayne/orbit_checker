@@ -197,10 +197,13 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         print('HAS_NO_RESULTS', unpacked_provisional_designation)
 
         # (1) Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-        ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+        
         # Standard asteroid ...
         if   "C/" not in unpacked_provisional_designation:
+            ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+            
+        # Comet
         elif "C/" in unpacked_provisional_designation:
             # Try using ades data
             SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=False )
@@ -210,8 +213,11 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             # Interpret results
             if SUCCESS:
                 result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
+            else:
+                result_dict         = {'SUCCESS':SUCCESS}
         else:
             pass
+        
         
         # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
         assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
