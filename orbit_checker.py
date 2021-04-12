@@ -32,6 +32,7 @@ import db_query_orbits_dev as query_orbs
 sys.path.insert(0,'/sa/orbit_pipeline/')
 import update_wrapper
 import update_existing_orbits
+import orbfit_to_dict as o2d
 
 import to_orbfit_db_tables_dev as to_db
 
@@ -207,9 +208,10 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         elif "C/" in unpacked_provisional_designation:
             # Try using ades data
             SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=False )
-            # Try again using obs80
-            if not SUCCESS:
-                SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=True )
+            #### Try again using obs80
+            ###if not SUCCESS:
+            ###    SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=True )
+            
             # Interpret results
             if SUCCESS:
                 result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
@@ -310,11 +312,9 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation , FORCEOBS
     proc_dir = newsub.generate_subdirectory( 'comets' )
 
     # Run a fit
-    print('FORCEOBS80 = ', FORCEOBS80)
-    if FORCEOBS80:
-        command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
-    else:
-        command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --obsfile ades --directory {proc_dir}"
+    #print('FORCEOBS80 = ', FORCEOBS80)
+    #command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --obsfile ades --directory {proc_dir}"
+    command = f"python3 /sa/orbit_utils/comet_orbits.py {packed_cmt_desig} --orbit N --directory {proc_dir}"
 
     print("Running\n", command , "...\n")
     process = subprocess.Popen( command,
@@ -415,24 +415,31 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
     return arg_dict, result_dict
     
     """
-
-    # loop through the comet output files that could/should exist in the processing directory
+    results = {}
+ 
+    # name of the directory that orbfit stores things in
     packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
     orbfitname       = update_existing_orbits.packeddes_to_orbfitdes(packed_cmt_desig)
-    eq_filelist      = ['.eq0_postfit', '.eq1_postfit', '.eq2_postfit', '.eq3_postfit']
+    
+    # loop through the comet output files that could/should exist in the processing directory
+    eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
     rwo_file         = '.rwo'
     
     # Read the eq* files
     for f in eq_filelist :
-        filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + f )
+        filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
         print(os.path.isfile(filepath) , ' : ', filepath)
         if os.path.isfile(filepath):
-            o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
+            result_dict[desig][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+            
     # Read the rwo file
-    filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + rwo_file )
-    o2d.rwo_to_dict(filepath)
+    filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
+    print(os.path.isfile(filepath) , ' : ', filepath)
+    result_dict[desig]['rwodict']   = o2d.rwo_to_dict(filepath)
     
     sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
+    
+    return results
 
 def assess_quality_dict(quality_dict , boolean_dict):
     """ At present this is just setting one of the following booleans in the boolean_dict ...
