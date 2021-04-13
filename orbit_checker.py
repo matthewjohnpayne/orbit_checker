@@ -156,7 +156,13 @@ def check_multiple_designations( method = None , size=0 ):
         
     # Update field(s) in the primary_objects table
 
-    
+
+def make_designation_dict(unpacked_provisional_designation):
+    return {
+        'unpacked_provisional_designation'  : unpacked_provisional_designation,
+        'packed_provisional_designation'    : mc.unpacked_to_packed_desig(unpacked_provisional_designation),
+        'orbfitname'                         update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
+    }
     
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
@@ -166,6 +172,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     (ii) does not permany many/any db updates
     
     '''
+    # Fucking designations
+    designation_dict = make_designation_dict(unpacked_provisional_designation)
     
     # Is this actually a primary unpacked_provisional_designation ?
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
@@ -197,37 +205,42 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         print()
         print('HAS_NO_RESULTS', unpacked_provisional_designation)
 
-        # (1) Attempt to fit the orbit using the "orbit_pipeline_wrapper"
         
-        # Standard asteroid ...
+        # (1) RUN THE ORBIT FIT ****
+
+        # (1a) Standard asteroid ...
         if   "C/" not in unpacked_provisional_designation:
+        
             ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
+            destination = 'asteroid '
             
-        # Comet
+        # (1b) Comet
         elif "C/" in unpacked_provisional_designation:
-            # Try using ades data
-            SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=False )
-            #### Try again using obs80
-            ###if not SUCCESS:
-            ###    SUCCESS , proc_dir  = direct_call_orbfit_comet_wrapper(unpacked_provisional_designation, FORCEOBS80=True )
-            
-            # Interpret results
-            if SUCCESS:
-                result_dict         = convert_orbfit_comet_output_to_dictionaries(proc_dir , unpacked_provisional_designation)
-            else:
-                result_dict         = {'SUCCESS':SUCCESS}
+        
+            # Orbfit using defaults ( using ades data from db I think )
+            boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
+
+            # Convert results from files to dictionaries (only done if possible)
+            result_dict = convert_orbfit_comet_output_to_dictionaries(unpacked_provisional_designation , boolean_dict, proc_dir)
+            destination = 'comet '
+
+        # (1c) Satellite
         else:
             pass
         
         
-        # (2) Evaluate the result from the orbit_pipeline_wrapper & assign a status
-        assessment_dict = assess_result_dict(unpacked_provisional_designation , result_dict )
+        # (2) Evaluate the result from the orbfit run & assign a status
+        assessment_dict = assess_result_dict(designation_dict , result_dict )
         print('\n:assessment_dict:',assessment_dict)
+        
+        # (3) Save the results to the database (only done if we have a useable result ... )
+        save_results_to_database( designation_dict, assessment_dict, result_dict , destination = destination )
+        
     
-        # if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
+        # (4) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
         if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
-            print('.. Ideally would try IOD ...')
+            result_dict = direct_call_IOD(designation_dict)
         
     # Primitive categorization
     if boolean_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
@@ -239,6 +252,13 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     else:
         return 2
     
+    
+    
+    
+    
+    
+    
+# ------------------ ORBIT EXTENSION -------------------------------------------
     
 '''
 def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation):
@@ -302,11 +322,37 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     }
     return update_wrapper.update_wrapper( arg_dict )
     
-def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation , FORCEOBS80=False):
+    
+    
+# -------------------- IOD ---------------------------------------------------------
+
+def direct_call_IOD( designation_dict ):
+    ''' FS's IOD code  '''
+    print('Trying IOD ...')
+
+    command = f"python3 ./neocp_wrapper.py {designation_dict['orbfitname']} --istrksub 'N' --neocp 'N' --directory '/sa/processing/iod'"
+    
+    # Set up the tmp-proc-dir
+    proc_dir = newsub.generate_subdirectory( 'iod' )
+    
+    print("Running\n", command , "...\n")
+    process = subprocess.Popen( command,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=True
+    )
+    stdout, stderr = process.communicate()
+    stdout = stdout.decode("utf-8").split('\n')
+    print('*direct_call_IOD* ... stdout:\n', stdout)
+
+
+# ------------------ COMET ORBIT-FIT -----------------------------------------------
+    
+def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
     ''' Copied from MJP's comet/process_comet.py code '''
     
     # comet code wants packed version ...
-    packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
+    packed_cmt_desig = designation_dict['packed_provisional_designation']
     
     # Set up the tmp-proc-dir
     proc_dir = newsub.generate_subdirectory( 'comets' )
@@ -331,7 +377,7 @@ def direct_call_orbfit_comet_wrapper(unpacked_provisional_designation , FORCEOBS
     
     return SUCCESS , proc_dir
 
-def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional_designation ):
+def convert_orbfit_comet_output_to_dictionaries(designation_dict , SUCCESS, proc_dir):
     '''
     converting the comet results to dictionaries
     
@@ -415,31 +461,37 @@ def convert_orbfit_comet_output_to_dictionaries( proc_dir , unpacked_provisional
     return arg_dict, result_dict
     
     """
-    results = {}
- 
-    # name of the directory that orbfit stores things in
-    packed_cmt_desig = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
-    orbfitname       = update_existing_orbits.packeddes_to_orbfitdes(packed_cmt_desig)
     
-    # loop through the comet output files that could/should exist in the processing directory
-    eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
-    rwo_file         = '.rwo'
-    
-    # Read the eq* files
-    for f in eq_filelist :
-        filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
+    result_dict[desig] = {}
+    if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
+        
+        # name of the directory that orbfit stores things in
+        orbfitname       = designation_dict['orbfitname']
+        
+        # loop through the comet output files that could/should exist in the processing directory
+        eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
+        rwo_file         = '.rwo'
+        
+        # Read the eq* files
+        for f in eq_filelist :
+            filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
+            print(os.path.isfile(filepath) , ' : ', filepath)
+            if os.path.isfile(filepath):
+                result_dict[desig][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+                
+        # Read the rwo file
+        filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
         print(os.path.isfile(filepath) , ' : ', filepath)
-        if os.path.isfile(filepath):
-            result_dict[desig][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
-            
-    # Read the rwo file
-    filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
-    print(os.path.isfile(filepath) , ' : ', filepath)
-    result_dict[desig]['rwodict']   = o2d.rwo_to_dict(filepath)
+        result_dict[desig]['rwodict']   = o2d.rwo_to_dict(filepath)
+        
+        sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
     
-    sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
+    else:
+        
     
     return results
+
+# ------------------ GENERIC RESULTS ASSESSMENT  -----------------------------------------------
 
 def assess_quality_dict(quality_dict , boolean_dict):
     """ At present this is just setting one of the following booleans in the boolean_dict ...
@@ -484,7 +536,7 @@ def assess_quality_dict(quality_dict , boolean_dict):
     return
     
     
-def assess_result_dict(unpacked_provisional_designation , result_dict):
+def assess_result_dict(designation_dict , result_dict):
     """
         Assess the results returned by orbfit-update-wrapper direct dictionaries)
 
@@ -502,8 +554,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     }
             
     # For whatever reason, the fit-wrapper returns packed designation
-    packed = mc.unpacked_to_packed_desig(unpacked_provisional_designation)
-
+    packed = designation_dict['packed_provisional_designation']
     
     # There can be problems w.r.t. the input generation ...
     # *** Need to discuss with MPan how to interpret ***
@@ -511,6 +562,7 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
     #
     # If certain keys are absent, => didn't run => look for set-up failure ...
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
+    # This logic should (accidentally) also pick-up the results from comets that have failed ...
     result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
         
     # Perhaps it ran but we get an explicit indicate of failure
@@ -518,17 +570,23 @@ def assess_result_dict(unpacked_provisional_designation , result_dict):
             result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
 
     
-    if result['SUCCESSFUL_ORBFIT_EXECUTION']:
-        if packed in result_dict:
-            # Call the code to insert the results into the database
-            to_db.main( [packed] , filedictlist=[result_dict[packed]] )
     
     else:
         result.update(result_dict[packed])
 
     return result
     
+# ------------------ SAVE RESULTSs -----------------------------------------------
 
-                       
+def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
+    ''' Save results to table(s) ...'''
+    
+    assert destination in ['asteroid']
+    
+    if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
+        if designation_dict['packed'] in result_dict:
+            # Call the code to insert the results into the database
+            to_db.main( [packed] , filedictlist=[result_dict[packed]] )
+
 if __name__ == '__main__':
     check_multiple_designations(method = 'COMET' , size=5 )
