@@ -114,11 +114,11 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        '''
-        primary_designations_array =  np.array(['2014 QT388', '2015 BC470', '2016 QW66'])
-        '''
-        print("\n... Searching db for all primary designations ... ")
-        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        
+        primary_designations_array =  np.array(['2008 WJ19', '2016 QW66'])
+        
+        ###print("\n... Searching db for all primary designations ... ")
+        ###primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
         # make into an array
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
@@ -214,6 +214,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
             destination = 'asteroid '
+            print("Standard ...result_dict =", result_dict)
             
         # (1b) Comet
         elif "C/" in unpacked_provisional_designation:
