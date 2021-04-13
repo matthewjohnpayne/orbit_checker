@@ -161,7 +161,7 @@ def make_designation_dict(unpacked_provisional_designation):
     return {
         'unpacked_provisional_designation'  : unpacked_provisional_designation,
         'packed_provisional_designation'    : mc.unpacked_to_packed_desig(unpacked_provisional_designation),
-        'orbfitname'                         update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
+        'orbfitname'                        : update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
     }
     
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
