@@ -462,12 +462,13 @@ def convert_orbfit_comet_output_to_dictionaries(designation_dict , SUCCESS, proc
     
     """
     
-    result_dict[desig] = {}
+    result_dict = {}
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         
         # name of the directory that orbfit stores things in
         orbfitname       = designation_dict['orbfitname']
-        
+        result_dict[orbfitname] =  {}
+
         # loop through the comet output files that could/should exist in the processing directory
         eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
         rwo_file         = '.rwo'
@@ -487,7 +488,7 @@ def convert_orbfit_comet_output_to_dictionaries(designation_dict , SUCCESS, proc
         sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
     
     else:
-        
+        pass
     
     return results
 
