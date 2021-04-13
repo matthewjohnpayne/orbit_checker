@@ -589,4 +589,4 @@ def save_results_to_database(designation_dict, assessment_dict, result_dict , de
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
 
 if __name__ == '__main__':
-    check_multiple_designations(method = 'COMET' , size=5 )
+    check_multiple_designations(method = 'ALL' , size=5 )
