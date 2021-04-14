@@ -117,8 +117,9 @@ def check_multiple_designations( method = None , size=0 ):
         
         primary_designations_array =  np.array(['2008 WJ19', '2016 QW66'])
         
-        ###print("\n... Searching db for all primary designations ... ")
-        ###primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        '''
+        print("\n... Searching db for all primary designations ... ")
+        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
         # make into an array
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
@@ -126,7 +127,7 @@ def check_multiple_designations( method = None , size=0 ):
             "A" != d['unpacked_primary_provisional_designation'][0] and \
             d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] and \
             d['unpacked_primary_provisional_designation'][-3:] != " PL" ] )
-
+        '''
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
