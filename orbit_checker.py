@@ -568,7 +568,7 @@ def assess_result_dict(designation_dict , result_dict):
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
     # This logic should (accidentally) also pick-up the results from comets that have failed ...
     result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
-        
+    print('HERE...', result )
     # Perhaps it ran but we get an explicit indicate of failure
     if result['SUCCESSFUL_ORBFIT_EXECUTION']:
             result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
@@ -585,7 +585,7 @@ def assess_result_dict(designation_dict , result_dict):
 def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
     ''' Save results to table(s) ...'''
     print('save_results_to_database: destination = ', destination)
-    assert destination in ['asteroid',]
+    assert False
     
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         if designation_dict['packed'] in result_dict:
