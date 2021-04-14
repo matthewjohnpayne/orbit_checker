@@ -568,12 +568,19 @@ def assess_result_dict(designation_dict , result_dict):
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
     # This logic should (accidentally) also pick-up the results from comets that have failed ...
     result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
-    print('HERE...', result )
+    
     # Perhaps it ran but we get an explicit indicate of failure
     if result['SUCCESSFUL_ORBFIT_EXECUTION']:
-            result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if result_dict['failedfits'] else True # If we see something in failedfits, then this is a failure
+        # (1) If we see something in failedfits, then this is a failure
+        # (2) If we don't see the packed designation in the result then this is a failure
+        # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
+        if result_dict['failedfits'] or packed not in result_dict or not result_dict[packed]['INPUT_GENERATION_SUCCESS']
+            result['SUCCESSFUL_ORBFIT_EXECUTION'] = False
+        else:
+            result['SUCCESSFUL_ORBFIT_EXECUTION'] = True
 
-    
+    print('HERE...', result )
+
     
     else:
         result.update(result_dict[packed])
