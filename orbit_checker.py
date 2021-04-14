@@ -331,10 +331,11 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
 
 def direct_call_IOD( designation_dict ):
     ''' FS's IOD code  '''
-    print('Trying IOD ...')
 
     command = f"python3 ./neocp_wrapper.py {designation_dict['orbfitname']} --istrksub 'N' --neocp 'N' --directory '/sa/processing/iod'"
     
+    print('Trying IOD using command ...\n', command )
+
     # Set up the tmp-proc-dir
     proc_dir = newsub.generate_subdirectory( 'iod' )
     
