@@ -579,12 +579,12 @@ def assess_result_dict(designation_dict , result_dict):
         else:
             result['SUCCESSFUL_ORBFIT_EXECUTION'] = True
 
-    print('HERE...', result )
+        print('HERE...', result )
 
     
-    else:
-        result.update(result_dict[packed])
-
+    
+    
+    result.update(result_dict[packed])
     return result
     
 # ------------------ SAVE RESULTSs -----------------------------------------------
