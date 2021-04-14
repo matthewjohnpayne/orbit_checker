@@ -229,14 +229,15 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
         # (1c) Satellite
         else:
-            pass
-        
+            destination = 'satellite '
+
         
         # (2) Evaluate the result from the orbfit run & assign a status
         assessment_dict = assess_result_dict(designation_dict , result_dict )
         print('\n:assessment_dict:',assessment_dict)
         
         # (3) Save the results to the database (only done if we have a useable result ... )
+        print('\n:destination:',destination)
         save_results_to_database( designation_dict, assessment_dict, result_dict , destination = destination )
         
     
