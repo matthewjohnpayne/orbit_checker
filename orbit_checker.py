@@ -569,8 +569,10 @@ def assess_result_dict(designation_dict , result_dict):
     # This logic should (accidentally) also pick-up the results from comets that have failed ...
     result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
     
-    # Perhaps it ran but we get an explicit indicate of failure
+    
     if result['SUCCESSFUL_ORBFIT_EXECUTION']:
+    
+        # Perhaps it ran but we get an explicit indicate of failure
         # (1) If we see something in failedfits, then this is a failure
         # (2) If we don't see the packed designation in the result then this is a failure
         # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
@@ -579,19 +581,18 @@ def assess_result_dict(designation_dict , result_dict):
         else:
             result['SUCCESSFUL_ORBFIT_EXECUTION'] = True
 
-        print('HERE...', result )
 
-    
-    
-    
-    result.update(result_dict[packed])
+    # Populate the other fields using the values which will be in result_dict[packed] ...
+    if packed in result_dict:
+        result.update(result_dict[packed])
+        
+    # Return results ...
     return result
     
 # ------------------ SAVE RESULTSs -----------------------------------------------
 
 def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
     ''' Save results to table(s) ...'''
-    print('save_results_to_database: destination = ', destination)
     
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         if designation_dict['packed'] in result_dict:
