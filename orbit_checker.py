@@ -226,8 +226,9 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
                     # Convert
                     result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
                     # Assess
+                    print('IOD: Pre-Assessment ...:\n', assessment_dict)
                     assess_result_dict(designation_dict , result_dict , assessment_dict)
-                    print('Post IOD , assessment_dict:\n', assessment_dict)
+                    print('IOD: PostAssessment ...:\n', assessment_dict)
 
         # (2) Comet
         elif "C/" in unpacked_provisional_designation:
@@ -506,6 +507,9 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
         print(os.path.isfile(filepath) , ' : ', filepath)
         result_dict[orbfitname]['rwodict']   = o2d.rwo_to_dict(filepath)
         
+        # Add an (empty) 'failedfits' element
+        result_dict[orbfitname]['failedfits'] = {}
+        
     return result_dict
     
     
@@ -564,6 +568,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict):
         * MJP needs to go through this with MPan to understand the possible returns/failures *
                 
     """
+    print('assess_result_dict , result_dict\n', result_dict)
     
     # Setting default values
     internal = {
