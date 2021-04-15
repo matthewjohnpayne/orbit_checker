@@ -114,15 +114,12 @@ def check_multiple_designations( method = None , size=0 ):
 
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
-        
-        #         # There can be problems w.r.t. the input generation ...
-        # *** Need to discuss with MPan how to interpret ***
-        # An example known failure is K15XM9X == 2015 XX229
-        #
+
+        # --------- SOME ONE-OFF DESIGNATIONS WITH VARIOUS ISSUES. USEFUL WHILE TESTING ---------
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  is not in the db & will go to IOD (IOD will work)
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
         # primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
-        primary_designations_array =  np.array(['2015 XX229'])###, "2006 WU224" is already in the db
+        primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
 
         '''
         print("\n... Searching db for all primary designations ... ")
