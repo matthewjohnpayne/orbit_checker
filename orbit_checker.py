@@ -600,7 +600,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
             # (1) If we see something in failedfits, then this is a failure
             # (2) If we don't see the packed designation in the result then this is a failure
             # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
-            if result_dict['failedfits'] or packed not in result_dict:
+            if result_dict['failedfits'] or packed not in result_dict or not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
                 internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
             else:
                 internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
