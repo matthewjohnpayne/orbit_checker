@@ -507,7 +507,7 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
         print(os.path.isfile(filepath) , ' : ', filepath)
         result_dict[orbfitname]['rwodict']   = o2d.rwo_to_dict(filepath)
         
-    return results
+    return result_dict
     
     
 
