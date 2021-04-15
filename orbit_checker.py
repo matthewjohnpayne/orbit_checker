@@ -121,8 +121,9 @@ def check_multiple_designations( method = None , size=0 ):
         #
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  is not in the db & will go to IOD (IOD will work)
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
-        
+        # primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
+        primary_designations_array =  np.array(['2015 XX229'])###, "2006 WU224" is already in the db
+
         '''
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
