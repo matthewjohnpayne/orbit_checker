@@ -222,8 +222,14 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
             # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
+            
+                # IOD
                 boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
-                result_dict = convert_orbfit_IOD_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
+                # Convert
+                result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
+                # Assess
+                assessment_dict = assess_result_dict(designation_dict , result_dict )
+
 
         # (2) Comet
         elif "C/" in unpacked_provisional_designation:
@@ -233,7 +239,10 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
 
             # Convert results from files to dictionaries (only done if possible)
-            result_dict = convert_orbfit_comet_output_to_dictionaries(unpacked_provisional_designation , boolean_dict, proc_dir)
+            result_dict = convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
+            
+            # Assess
+            assessment_dict = assess_result_dict(designation_dict , result_dict )
 
         # (3) Satellite
         else:
@@ -384,7 +393,7 @@ def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
     
     return SUCCESS , proc_dir
 
-def convert_orbfit_comet_output_to_dictionaries(designation_dict , SUCCESS, proc_dir):
+def convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir):
     '''
     converting the comet results to dictionaries
     
@@ -498,6 +507,9 @@ def convert_orbfit_comet_output_to_dictionaries(designation_dict , SUCCESS, proc
         pass
     
     return results
+    
+    
+
 
 # ------------------ GENERIC RESULTS ASSESSMENT  -----------------------------------------------
 
