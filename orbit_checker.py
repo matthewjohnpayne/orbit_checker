@@ -612,7 +612,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict):
 
 def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
     ''' Save results to table(s) ...'''
-    
+    print('*** Saving results to db ... *** ')
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         if designation_dict['packed'] in result_dict:
             sys.exit('exiting instead of writing ...')
