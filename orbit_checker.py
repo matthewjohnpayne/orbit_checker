@@ -224,8 +224,11 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'Pan' )
 
             # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
-            if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
-            
+            if  not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and \
+                not assessment_dict['INPUT_GENERATION_SUCCESS'] and \
+                assessment_dict['enough_obs'] and \
+                not assessment_dict['existing_orbit']:
+        
                 # IOD
                 print("\t*"*3,"IOD ...")
                 assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
@@ -287,44 +290,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     
     
 # ------------------ ORBIT EXTENSION -------------------------------------------
-    
-'''
-def call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation):
-    """
-    # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
-    # - Obviously I don't like doing a Gareth-like command-line call
-    # - But I'll do it for now while MPan is developing/converging the codes
-    """
-    
-    # Make a local "designation file" as per Margaret's instructions
-    designation_file = os.path.join( os.path.expanduser("~") , '.temp_desig_file.txt')
-    with open(designation_file,'w') as fh:
-        fh.write(unpacked_provisional_designation+'\n')
 
-    # Run the orbit fit & Capture the output
-    command = f'python3 /sa/orbit_pipeline/update_wrapper.py -b {designation_file} -n -s check_obj'
-    process = subprocess.Popen( command,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                shell=True
-    )
-    stdout, stderr = process.communicate()
-    stdout = stdout.decode("utf-8").split('\n')
-    
-    # Delete the local file
-    os.remove(designation_file)
-
-    # Extract the name of the processing directory from the stdout
-    for line in stdout:
-        if "Created processing directory" in line:
-            proc_dir = line.split()[-1]
-    
-    # Grab the results file(s) that I want & return it
-    result_json = glob.glob(proc_dir + "/resultdict_*json")[0]
-    with open(result_json) as rj:
-        result_dict = json.load(rj)
-    return result_dict
-'''
     
 def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     """
@@ -606,9 +572,9 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
                 internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
 
 
-        # Populate the other fields in the internal-dict using the values which will be in result_dict[packed] ...
-        if packed in result_dict:
-            pass # internal.update(result_dict[packed])
+        # If there was a problem with input-generation, it will be useful to grab the info
+        if not internal['SUCCESSFUL_ORBFIT_EXECUTION'] and packed in result_dict and not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
+            internal.update(result_dict[packed])
 
     # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER, THERE IS NOT MUCH PRE-POPULATED INFORMATION ----------
     elif RESULT_DICT_ORIGIN == 'Payne' :
@@ -626,10 +592,10 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
 
 def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
     ''' Save results to table(s) ...'''
-    print('*** Saving results to db ... *** ')
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         packed = designation_dict['packed_provisional_designation']
         if packed in result_dict:
+            print('*** Saving results to db ... *** ')
             # Call the code to insert the results into the database
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
 
