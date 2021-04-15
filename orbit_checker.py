@@ -262,7 +262,6 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
 
     # Primitive categorization
-    '''
     if assessment_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return -1
     if assessment_dict['HAS_NO_RESULTS'] and assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
@@ -271,7 +270,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         return 0
     else:
         return 2
-    '''
+    
     
     
     
