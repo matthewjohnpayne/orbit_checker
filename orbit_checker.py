@@ -64,7 +64,7 @@ status_dict = {
 
 # Alternative way of define possible orbit/designation "status"
 # Need to go back-and-forth with Margaret to define a list of all possible failure modes / metrics / etc
-boolean_dict = {
+assessment_dict = {
 
     # Overall designation status
     'IS_PRIMARY_UNPACKED_DESIGNATION'   : False,
@@ -176,34 +176,30 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # Fucking designations
     designation_dict = make_designation_dict(unpacked_provisional_designation)
     
-    # Is this actually a primary unpacked_provisional_designation ?
+    # Check whether actually a primary unpacked_provisional_designation
     # - If being called from a list pulled from the identifications tables, then this step is unnecessary
     # - But I provide it for safety
-    boolean_dict['IS_PRIMARY_UNPACKED_DESIGNATION'] = dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
+    assessment_dict['IS_PRIMARY_UNPACKED_DESIGNATION'] = dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
 
     # Update the primary_objects table to flag whether we have an orbit in the orbfit-results table
     # NB(1) : If there is *no* match, then the returned value for orbfit_results_id == False
     # NB(2) : This is not logically great, should really be checking not in comets, etc,
     #         but for now, while developing, this is not something to worry about while the comet tble is empty
-    boolean_dict['IS_IN_ORBFIT_RESULTS']        = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
-    boolean_dict['IS_IN_COMET_RESULTS']         = False
-    boolean_dict['IS_IN_SATELLITE_RESULTS']     = False
-    boolean_dict['HAS_NO_RESULTS']              = not boolean_dict['IS_IN_ORBFIT_RESULTS']
+    assessment_dict['IS_IN_ORBFIT_RESULTS']        = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
+    assessment_dict['IS_IN_COMET_RESULTS']         = False
+    assessment_dict['IS_IN_SATELLITE_RESULTS']     = False
+    assessment_dict['HAS_NO_RESULTS']              = not assessment_dict['IS_IN_ORBFIT_RESULTS']
     
-    #if boolean_dict['IS_IN_ORBFIT_RESULTS']:
-    #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
-    #                                                                boolean_dict['IS_IN_ORBFIT_RESULTS']   )
     
     # Understand the quality of any orbfit-orbit currently in the database ...
     # - Not clear where we want to be doing this, but while developing I am doing this here ...
-    if boolean_dict['IS_IN_ORBFIT_RESULTS'] :
+    if assessment_dict['IS_IN_ORBFIT_RESULTS'] :
         quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
-        assess_quality_dict(quality_dict , boolean_dict)
+        assess_quality_dict(quality_dict , assessment_dict)
 
 
     # If no orbit at all...
-    if boolean_dict['HAS_NO_RESULTS'] :
-        print()
+    if assessment_dict['HAS_NO_RESULTS'] :
         print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
@@ -217,18 +213,20 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             print("Standard ...result_dict =", result_dict)
             
             # (b) Evaluate the result from the orbfit run & assign a status
-            assessment_dict = assess_result_dict(designation_dict , result_dict )
+            assess_result_dict(designation_dict , result_dict , assessment_dict)
             print('\n:assessment_dict:',assessment_dict)
 
             # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
             
                 # IOD
-                boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
-                # Convert
-                result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
-                # Assess
-                assessment_dict = assess_result_dict(designation_dict , result_dict )
+                assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
+                
+                if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
+                    # Convert
+                    result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
+                    # Assess
+                    assess_result_dict(designation_dict , result_dict , assessment_dict)
 
 
         # (2) Comet
@@ -236,13 +234,13 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             destination = 'comet '
 
             # Orbfit
-            boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
+            assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
 
             # Convert results from files to dictionaries (only done if possible)
-            result_dict = convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
+            result_dict = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
             
             # Assess
-            assessment_dict = assess_result_dict(designation_dict , result_dict )
+            assess_result_dict(designation_dict , result_dict , assessment_dict)
 
         # (3) Satellite
         else:
@@ -256,16 +254,24 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         
 
 
+    #if assessment_dict['IS_IN_ORBFIT_RESULTS']:
+    #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
+    #                                                                assessment_dict['IS_IN_ORBFIT_RESULTS']   )
+
+
+
+
     # Primitive categorization
-    if boolean_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
+    '''
+    if assessment_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return -1
-    if boolean_dict['HAS_NO_RESULTS'] and assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
+    if assessment_dict['HAS_NO_RESULTS'] and assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return 1
-    elif boolean_dict['HAS_BAD_QUALITY_DICT']:
+    elif assessment_dict['HAS_BAD_QUALITY_DICT']:
         return 0
     else:
         return 2
-    
+    '''
     
     
     
@@ -393,7 +399,7 @@ def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
     
     return SUCCESS , proc_dir
 
-def convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_dir):
+def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir):
     '''
     converting the comet results to dictionaries
     
@@ -513,8 +519,8 @@ def convert_orbfit_output_to_dictionaries(designation_dict , boolean_dict, proc_
 
 # ------------------ GENERIC RESULTS ASSESSMENT  -----------------------------------------------
 
-def assess_quality_dict(quality_dict , boolean_dict):
-    """ At present this is just setting one of the following booleans in the boolean_dict ...
+def assess_quality_dict(quality_dict , assessment_dict):
+    """ At present this is just setting one of the following booleans in the assessment_dict ...
         'HAS_BAD_QUALITY_DICT'            : False,
         'HAS_INTERMEDIATE_QUALITY_DICT'   : False,
         'HAS_GOOD_QUALITY_DICT'           : False,
@@ -526,9 +532,9 @@ def assess_quality_dict(quality_dict , boolean_dict):
     problems_B  = ["no CAR covariance", "no COM covariance"]
 
     #Default is "good"
-    boolean_dict['HAS_BAD_QUALITY_DICT']            = False
-    boolean_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
-    boolean_dict['HAS_GOOD_QUALITY_DICT']           = True
+    assessment_dict['HAS_BAD_QUALITY_DICT']            = False
+    assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
+    assessment_dict['HAS_GOOD_QUALITY_DICT']           = True
 
         
     # Severe problems
@@ -537,9 +543,9 @@ def assess_quality_dict(quality_dict , boolean_dict):
         for k in expected_topline_keys:
             message_string = quality_dict[k]
             if problem in message_string:
-                boolean_dict['HAS_BAD_QUALITY_DICT']            = True
-                boolean_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
-                boolean_dict['HAS_GOOD_QUALITY_DICT']           = False
+                assessment_dict['HAS_BAD_QUALITY_DICT']            = True
+                assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
+                assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
                 return
                 
     # Intermediate problems
@@ -548,24 +554,25 @@ def assess_quality_dict(quality_dict , boolean_dict):
         for k in expected_topline_keys:
             message_string = quality_dict[k]
             if problem in message_string:
-                boolean_dict['HAS_BAD_QUALITY_DICT']            = False
-                boolean_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = True
-                boolean_dict['HAS_GOOD_QUALITY_DICT']           = False
+                assessment_dict['HAS_BAD_QUALITY_DICT']            = False
+                assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = True
+                assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
                 return
     # return
     return
     
     
-def assess_result_dict(designation_dict , result_dict):
+def assess_result_dict(designation_dict , result_dict, assessment_dict):
     """
         Assess the results returned by orbfit-update-wrapper direct dictionaries)
+        Store assessment in assessment_dict
 
         * MJP needs to go through this with MPan to understand the possible returns/failures *
                 
     """
     
     # Setting default values
-    result = {
+    internal = {
         'SUCCESSFUL_ORBFIT_EXECUTION'   : None,
         'INPUT_GENERATION_SUCCESS'      : None,
         'enough_obs'                    : None,
@@ -583,27 +590,29 @@ def assess_result_dict(designation_dict , result_dict):
     # If certain keys are absent, => didn't run => look for set-up failure ...
     # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
     # This logic should (accidentally) also pick-up the results from comets that have failed ...
-    result['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
+    internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
     
     
-    if result['SUCCESSFUL_ORBFIT_EXECUTION']:
+    if internal['SUCCESSFUL_ORBFIT_EXECUTION']:
     
         # Perhaps it ran but we get an explicit indicate of failure
         # (1) If we see something in failedfits, then this is a failure
         # (2) If we don't see the packed designation in the result then this is a failure
         # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
         if result_dict['failedfits'] or packed not in result_dict or not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
-            result['SUCCESSFUL_ORBFIT_EXECUTION'] = False
+            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
         else:
-            result['SUCCESSFUL_ORBFIT_EXECUTION'] = True
+            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
 
 
-    # Populate the other fields using the values which will be in result_dict[packed] ...
+    # Populate the other fields in the internal-dict using the values which will be in result_dict[packed] ...
     if packed in result_dict:
-        result.update(result_dict[packed])
+        internal.update(result_dict[packed])
         
-    # Return results ...
-    return result
+    # Update the assessment_dict with the internal results ...
+    assessment_dict.update(internal)
+    
+    return
     
 # ------------------ SAVE RESULTSs -----------------------------------------------
 
