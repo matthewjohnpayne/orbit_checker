@@ -209,17 +209,17 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
             ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             # (a) Orbfit & Dictionary conversion in one
+            print("\t*"*3,"Standard Orbit Fit ...")
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
-            print("Standard ...result_dict =", result_dict)
             
             # (b) Evaluate the result from the orbfit run & assign a status
             assess_result_dict(designation_dict , result_dict , assessment_dict)
-            print('\n:assessment_dict:',assessment_dict)
 
             # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
             
                 # IOD
+                print("\t*"*3,"IOD ...")
                 assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
                 
                 if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
@@ -500,12 +500,12 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
             filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
             print(os.path.isfile(filepath) , ' : ', filepath)
             if os.path.isfile(filepath):
-                result_dict[desig][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+                result_dict[orbfitname][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
                 
         # Read the rwo file
         filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
         print(os.path.isfile(filepath) , ' : ', filepath)
-        result_dict[desig]['rwodict']   = o2d.rwo_to_dict(filepath)
+        result_dict[orbfitname]['rwodict']   = o2d.rwo_to_dict(filepath)
         
         sys.exit('Exiting after one iteration in convert_orbfit_comet_output_to_dictionaries ...s')
     
