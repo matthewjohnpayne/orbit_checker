@@ -227,7 +227,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
                     result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
                     # Assess
                     assess_result_dict(designation_dict , result_dict , assessment_dict)
-
+                    print('Post IOD , assessment_dict:\n', assessment_dict)
 
         # (2) Comet
         elif "C/" in unpacked_provisional_designation:
@@ -361,7 +361,7 @@ def direct_call_IOD( designation_dict ):
     )
     stdout, stderr = process.communicate()
     stdout = stdout.decode("utf-8").split('\n')
-    print('*direct_call_IOD* ... stdout:\n', stdout)
+    #print('*direct_call_IOD* ... stdout:\n', stdout)
 
     # Parse the output to look for the 'success' flag ...
     SUCCESS = True if np.any([ 'Initial return code = 0' in _ for _ in stdout]) else False
