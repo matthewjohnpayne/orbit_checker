@@ -115,6 +115,10 @@ def check_multiple_designations( method = None , size=0 ):
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
         
+        #         # There can be problems w.r.t. the input generation ...
+        # *** Need to discuss with MPan how to interpret ***
+        # An example known failure is K15XM9X == 2015 XX229
+        #
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  is not in the db & will go to IOD (IOD will work)
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
         primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
@@ -216,7 +220,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
             
             # (b) Evaluate the result from the orbfit run & assign a status
-            assess_result_dict(designation_dict , result_dict , assessment_dict)
+            assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'Pan' )
 
             # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
@@ -230,7 +234,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
                     result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
                     # Assess
                     print('IOD: Pre-Assessment ...:\n', assessment_dict)
-                    assess_result_dict(designation_dict , result_dict , assessment_dict)
+                    assess_result_dict(designation_dict , result_dict , assessment_dict, RESULT_DICT_ORIGIN = 'Payne' )
                     print('IOD: PostAssessment ...:\n', assessment_dict)
 
         # (2) Comet
@@ -563,15 +567,12 @@ def assess_quality_dict(quality_dict , assessment_dict):
     return
     
     
-def assess_result_dict(designation_dict , result_dict, assessment_dict):
+def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_DICT_ORIGIN = 'Pan'):
     """
-        Assess the results returned by orbfit-update-wrapper direct dictionaries)
+        Assess the results in dictionaries from orbfit
         Store assessment in assessment_dict
-
-        * MJP needs to go through this with MPan to understand the possible returns/failures *
-                
     """
-    print('assess_result_dict , result_dict\n', result_dict)
+    print('assess_result_dict : result_dict=...\n', result_dict)
     
     # Setting default values
     internal = {
@@ -581,36 +582,40 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict):
         'existing_orbit'                : None,
         'new_obs_in_db'                 : None
     }
+    
+    # -------- IF THE RESULT CAME FROM MARGARET'S WRAPPER, THERE IS A LOT OF PRE-POPULATED INFORMATION ----------
+    if RESULT_DICT_ORIGIN == 'Pan' :
             
-    # For whatever reason, the fit-wrapper returns packed designation
-    packed = designation_dict['packed_provisional_designation']
-    
-    # There can be problems w.r.t. the input generation ...
-    # *** Need to discuss with MPan how to interpret ***
-    # An example known failure is K15XM9X == 2015 XX229
-    #
-    # If certain keys are absent, => didn't run => look for set-up failure ...
-    # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
-    # This logic should (accidentally) also pick-up the results from comets that have failed ...
-    internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
-    
-    
-    if internal['SUCCESSFUL_ORBFIT_EXECUTION']:
-    
-        # Perhaps it ran but we get an explicit indicate of failure
-        # (1) If we see something in failedfits, then this is a failure
-        # (2) If we don't see the packed designation in the result then this is a failure
-        # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
-        if result_dict['failedfits'] or packed not in result_dict or not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
-            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
-        else:
-            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
-
-
-    # Populate the other fields in the internal-dict using the values which will be in result_dict[packed] ...
-    if packed in result_dict:
-        internal.update(result_dict[packed])
+        # For whatever reason, the fit-wrapper returns packed designation
+        packed = designation_dict['packed_provisional_designation']
         
+        # There can be problems w.r.t. the input generation ...
+        # If certain keys are absent, => didn't run => look for set-up failure ...
+        # Expect keys like 'K15XM9X' , 'batch', 'obs_summary', 'time', 'top_level'
+        internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
+        if internal['SUCCESSFUL_ORBFIT_EXECUTION']:
+        
+            # Perhaps it ran but we get an explicit indicate of failure
+            # (1) If we see something in failedfits, then this is a failure
+            # (2) If we don't see the packed designation in the result then this is a failure
+            # (3) If ['INPUT_GENERATION_SUCCESS'] was not successful, then this is a failure ...
+            if result_dict['failedfits'] or packed not in result_dict or not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
+                internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
+            else:
+                internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
+
+
+        # Populate the other fields in the internal-dict using the values which will be in result_dict[packed] ...
+        if packed in result_dict:
+            pass # internal.update(result_dict[packed])
+
+    # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER, THERE IS NOT MUCH PRE-POPULATED INFORMATION ----------
+    elif RESULT_DICT_ORIGIN == 'Payne' :
+        pass
+    else:
+        sys.exit('Unknown RESULT_DICT_ORIGIN:', RESULT_DICT_ORIGIN)
+
+
     # Update the assessment_dict with the internal results ...
     assessment_dict.update(internal)
     
