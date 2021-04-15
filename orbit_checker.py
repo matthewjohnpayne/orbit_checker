@@ -578,13 +578,13 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
     # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER, THERE IS NOT MUCH PRE-POPULATED INFORMATION ----------
     elif RESULT_DICT_ORIGIN == 'Payne' :
     
-        orbfitname = designation_dict['orbfitname']
+        packed = designation_dict['packed_provisional_designation']
         print('HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         print(result_dict)
-        if  orbfitname in result_dict and \
-            'eq0dict' in result_dict[orbfitname] and \
-            'eq1dict' in result_dict[orbfitname] and \
-            'rwodict' in result_dict[orbfitname]:
+        if  packed in result_dict and \
+            'eq0dict' in result_dict[packed] and \
+            'eq1dict' in result_dict[packed] and \
+            'rwodict' in result_dict[packed]:
             internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
         else:
             internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
