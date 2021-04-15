@@ -115,7 +115,9 @@ def check_multiple_designations( method = None , size=0 ):
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
         
-        #primary_designations_array =  np.array(['2008 WJ19'])#, '2016 QW66'])
+        # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  is not in the db & will go to IOD (IOD will work)
+        # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
+        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
         
         
         print("\n... Searching db for all primary designations ... ")
@@ -199,8 +201,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
 
     # If no orbit at all...
-    if assessment_dict['HAS_NO_RESULTS'] :
-        print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
+    if True:#assessment_dict['HAS_NO_RESULTS'] :
+        #print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
         # (1) Standard asteroid ...
