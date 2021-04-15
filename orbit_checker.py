@@ -539,7 +539,6 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
         Assess the results in dictionaries from orbfit
         Store assessment in assessment_dict
     """
-    print('assess_result_dict : result_dict=...\n', result_dict)
     
     # Setting default values
     internal = {
@@ -580,6 +579,8 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
     elif RESULT_DICT_ORIGIN == 'Payne' :
     
         orbfitname = designation_dict['orbfitname']
+        print('HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(result_dict)
         if  orbfitname in result_dict and \
             'eq0dict' in result_dict[orbfitname] and \
             'eq1dict' in result_dict[orbfitname] and \
