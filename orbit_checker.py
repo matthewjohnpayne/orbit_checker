@@ -115,9 +115,9 @@ def check_multiple_designations( method = None , size=0 ):
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
         
-        primary_designations_array =  np.array(['2008 WJ19'])#, '2016 QW66'])
+        #primary_designations_array =  np.array(['2008 WJ19'])#, '2016 QW66'])
         
-        '''
+        
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
@@ -127,7 +127,7 @@ def check_multiple_designations( method = None , size=0 ):
             "A" != d['unpacked_primary_provisional_designation'][0] and \
             d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] and \
             d['unpacked_primary_provisional_designation'][-3:] != " PL" ] )
-        '''
+        
     # Choose a random subset
     if method == 'RANDOM':
         primary_designations_array = np.random.choice(primary_designations_array, size=size, replace=False)
@@ -625,4 +625,4 @@ def save_results_to_database(designation_dict, assessment_dict, result_dict , de
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
 
 if __name__ == '__main__':
-    check_multiple_designations(method = 'ALL' , size=5 )
+    check_multiple_designations(method = 'RANDOM' , size=5 )
