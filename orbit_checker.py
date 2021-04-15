@@ -148,7 +148,7 @@ def check_multiple_designations( method = None , size=0 ):
     
     # Primitive categorization:
     # - Doing this purely to facilitate having a pretty print-out
-    for value, txt in zip( [-1,1,0], ['Missing...', 'Fixed...', 'Poor...'] ):
+    for value, txt in zip( [-1,1,0,2], ['Missing...', 'Fixed...', 'Poor...', 'Good...'] ):
         desigs = [k for k,v in results.items() if v == value]
         print('\n'+txt)
         print('\tN=',len(desigs))
