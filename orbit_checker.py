@@ -500,7 +500,7 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
             filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
             print(os.path.isfile(filepath) , ' : ', filepath)
             if os.path.isfile(filepath):
-                result_dict[orbfitname][eq+'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+                result_dict[orbfitname][f + 'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
                 
         # Read the rwo file
         filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
