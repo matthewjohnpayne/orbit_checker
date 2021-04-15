@@ -629,7 +629,6 @@ def save_results_to_database(designation_dict, assessment_dict, result_dict , de
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         packed = designation_dict['packed_provisional_designation']
         if packed in result_dict:
-            sys.exit('exiting instead of writing ...')
             # Call the code to insert the results into the database
             to_db.main( [packed] , filedictlist=[result_dict[packed]] )
 
