@@ -115,7 +115,7 @@ def check_multiple_designations( method = None , size=0 ):
     # Get a list of primary designations from the current_identifications table in the database
     if method in ['ALL' ,'RANDOM']:
         
-        primary_designations_array =  np.array(['2008 WJ19', '2016 QW66'])
+        primary_designations_array =  np.array(['2008 WJ19'])#, '2016 QW66'])
         
         '''
         print("\n... Searching db for all primary designations ... ")
@@ -204,47 +204,49 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     # If no orbit at all...
     if boolean_dict['HAS_NO_RESULTS'] :
         print()
-        print('HAS_NO_RESULTS', unpacked_provisional_designation)
+        print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
-        # (1) RUN THE ORBIT FIT ****
-
-        # (1a) Standard asteroid ...
+        # (1) Standard asteroid ...
         if   "C/" not in unpacked_provisional_designation:
-        
+            destination = 'asteroid ' ; print(destination)
+
             ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
+            # (a) Orbfit & Dictionary conversion in one
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
-            destination = 'asteroid '
             print("Standard ...result_dict =", result_dict)
             
-        # (1b) Comet
+            # (b) Evaluate the result from the orbfit run & assign a status
+            assessment_dict = assess_result_dict(designation_dict , result_dict )
+            print('\n:assessment_dict:',assessment_dict)
+
+            # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
+            if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
+                boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
+                result_dict = convert_orbfit_IOD_output_to_dictionaries(designation_dict , boolean_dict, proc_dir)
+
+        # (2) Comet
         elif "C/" in unpacked_provisional_designation:
-        
-            # Orbfit using defaults ( using ades data from db I think )
+            destination = 'comet '
+
+            # Orbfit
             boolean_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
 
             # Convert results from files to dictionaries (only done if possible)
             result_dict = convert_orbfit_comet_output_to_dictionaries(unpacked_provisional_designation , boolean_dict, proc_dir)
-            destination = 'comet '
 
-        # (1c) Satellite
+        # (3) Satellite
         else:
             destination = 'satellite '
 
         
-        # (2) Evaluate the result from the orbfit run & assign a status
-        assessment_dict = assess_result_dict(designation_dict , result_dict )
-        print('\n:assessment_dict:',assessment_dict)
         
-        # (3) Save the results to the database (only done if we have a useable result ... )
-        print('\n:destination:',destination)
+
+        # (4) Save results to the database (only done if we have a useable result ... )
         save_results_to_database( designation_dict, assessment_dict, result_dict , destination = destination )
         
-    
-        # (4) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
-        if not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and assessment_dict['enough_obs'] and not assessment_dict['existing_orbit']:
-            result_dict = direct_call_IOD(designation_dict)
-        
+
+
     # Primitive categorization
     if boolean_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         return -1
@@ -347,6 +349,9 @@ def direct_call_IOD( designation_dict ):
     stdout = stdout.decode("utf-8").split('\n')
     print('*direct_call_IOD* ... stdout:\n', stdout)
 
+    # Parse the output to look for the 'success' flag ...
+    SUCCESS = True if np.any([ 'Initial return code = 0' in _ for _ in stdout]) else False
+    return SUCCESS , proc_dir
 
 # ------------------ COMET ORBIT-FIT -----------------------------------------------
     
