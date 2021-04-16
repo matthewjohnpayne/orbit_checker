@@ -278,7 +278,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         
 
     # Generate status-code & return
-    return generate_status_code()
+    return generate_status_code(assessment_dict)
     
 
 
