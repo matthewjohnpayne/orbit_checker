@@ -236,9 +236,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
                     # Convert
                     result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
                     # Assess
-                    print('IOD: Pre-Assessment ...:\n', assessment_dict)
                     assess_result_dict(designation_dict , result_dict , assessment_dict, RESULT_DICT_ORIGIN = 'Payne' )
-                    print('IOD: PostAssessment ...:\n', assessment_dict)
 
         # (2) Comet
         elif "C/" in unpacked_provisional_designation:
