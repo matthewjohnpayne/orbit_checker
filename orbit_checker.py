@@ -492,7 +492,7 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
         # if we can't read the orbit-files then I am going to label the execution as unsuccessful ...
         except Exception as e:
             print('Exception occured while reading files ...\n\t',e)
-            assessment_dict['SUCCESSFUL_ORBIT_GENERATION]=False
+            assessment_dict['SUCCESSFUL_ORBIT_GENERATION']=False
             
         
     return result_dict
