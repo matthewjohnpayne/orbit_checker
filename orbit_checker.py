@@ -471,20 +471,29 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
         eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
         rwo_file         = '.rwo'
         
-        # Read the eq* files
-        for f in eq_filelist :
-            filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
-            print(os.path.isfile(filepath) , ' : ', filepath)
-            if os.path.isfile(filepath):
-                result_dict[packed][f + 'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
-                
-        # Read the rwo file
-        filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
-        print(os.path.isfile(filepath) , ' : ', filepath)
-        result_dict[packed]['rwodict']   = o2d.rwo_to_dict(filepath)
+        # try to read the results files ...
+        try:
         
-        # Add an (empty) 'failedfits' element
-        result_dict[packed]['failedfits'] = {}
+            # Read the eq* files
+            for f in eq_filelist :
+                filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
+                print(os.path.isfile(filepath) , ' : ', filepath)
+                if os.path.isfile(filepath):
+                    result_dict[packed][f + 'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+                    
+            # Read the rwo file
+            filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
+            print(os.path.isfile(filepath) , ' : ', filepath)
+            result_dict[packed]['rwodict']   = o2d.rwo_to_dict(filepath)
+            
+            # Add an (empty) 'failedfits' element
+            result_dict[packed]['failedfits'] = {}
+            
+        # if we can't read the orbit-files then I am going to label the execution as unsuccessful ...
+        except Exception as e:
+            print('Exception occured while reading files ...\n\t',e)
+            assessment_dict['SUCCESSFUL_ORBIT_GENERATION]=False
+            
         
     return result_dict
     
@@ -588,7 +597,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
             internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
         else:
             internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
-
+            print("\n assess_result_dict \t *** UNSUCCESSFUL EXECUTION *** \n")
     else:
         sys.exit('Unknown RESULT_DICT_ORIGIN:', RESULT_DICT_ORIGIN)
 
