@@ -156,7 +156,7 @@ def check_multiple_designations( method = None , size=0 ):
         status = check_single_designation( desig , dbConnIDs, dbConnOrbs)
         
         # Write the status values to the database
-        
+        print('\t status=', status)
 
 
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
