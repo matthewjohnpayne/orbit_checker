@@ -219,7 +219,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     }
     
     # Assess any extant database-orbit & set flags in assessment_dict
-    assess_quality_of_any_database_orbit(designation_dict, assessment_dict)
+    assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
 
 
     # If no orbit at all...
@@ -274,7 +274,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
 
         # (4) Save results to the database (only done if we have a useable result ... )
-        save_results_to_database( designation_dict, assessment_dict, result_dict , destination = destination )
+        save_results_to_database( designation_dict, assessment_dict, result_dict , dbConnOrbs, destination = destination )
         
 
     # Generate status-code & return
@@ -435,7 +435,7 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
 
 # ------------------ GENERIC RESULTS ASSESSMENT  -----------------------------------------------
 
-def assess_quality_of_any_database_orbit(designation_dict , assessment_dict):
+def assess_quality_of_any_database_orbit(designation_dict , assessment_dict, dbConnOrbs):
     """
     At present this is just setting one booleans in the assessment_dict ...
     """
@@ -574,7 +574,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
 
 # ------------------ SAVE RESULTS -----------------------------------------------
 
-def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
+def save_results_to_database(designation_dict, assessment_dict, result_dict , dbConnOrbs, destination = 'asteroid'):
     '''
     Save results to table(s) ...
     Also evaluates the status of whatever it has just written ...
@@ -590,7 +590,7 @@ def save_results_to_database(designation_dict, assessment_dict, result_dict , de
                 to_db.main( [packed] , filedictlist=[result_dict[packed]] )
                 
                 # Assess any extant database-orbit & set flags in assessment_dict
-                assess_quality_of_any_database_orbit(designation_dict, assessment_dict)
+                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
                                 
             except Exception as e:
                 print('An Exception occured in save_results_to_database but I am continuing ...\n\t', e)
