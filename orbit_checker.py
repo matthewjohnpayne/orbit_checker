@@ -116,7 +116,7 @@ def check_multiple_designations( method = None , size=0 ):
     if method in ['ALL' ,'RANDOM']:
 
         # --------- SOME ONE-OFF DESIGNATIONS WITH VARIOUS ISSUES. USEFUL WHILE TESTING ---------
-        primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  is not in the db & will go to IOD (IOD will work)
+        primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
         # primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
@@ -579,8 +579,6 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
     elif RESULT_DICT_ORIGIN == 'Payne' :
     
         packed = designation_dict['packed_provisional_designation']
-        print('HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(result_dict)
         if  packed in result_dict and \
             'eq0dict' in result_dict[packed] and \
             'eq1dict' in result_dict[packed] and \
