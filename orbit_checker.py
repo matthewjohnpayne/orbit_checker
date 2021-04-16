@@ -202,12 +202,12 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         'HAS_WEAK_ORBIT_FIT'                : False,
         
         # IF THE IOD FAILED, TRY TO UNDERSTAND WHY ...
-        'HAS_NOBS_LTE_3'                    : False
-        'HAS_NOBS_LTE_10'                   : False
-        'HAS_ARC_LTE_1_DAY'                 : False
-        'HAS_ARC_LTE_2_DAY'                 : False
-        'HAS_NOBS_C51_GTE_5'                : False
-        'HAS_FRAC_C51_GTE_0.5'              : False
+        'HAS_NOBS_LTE_3'                    : False,
+        'HAS_NOBS_LTE_10'                   : False,
+        'HAS_ARC_LTE_1_DAY'                 : False,
+        'HAS_ARC_LTE_2_DAY'                 : False,
+        'HAS_NOBS_C51_GTE_5'                : False,
+        'HAS_FRAC_C51_GTE_0.5'              : False,
 
     }
 
