@@ -120,11 +120,11 @@ def check_multiple_designations( method = None , size=0 ):
         #primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
+        #primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
 
         
-        '''
+        
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
@@ -134,7 +134,7 @@ def check_multiple_designations( method = None , size=0 ):
             "A" != d['unpacked_primary_provisional_designation'][0] and \
             d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] and \
             d['unpacked_primary_provisional_designation'][-3:] != " PL" ] )
-        '''
+        
         
     # Choose a random subset
     if method == 'RANDOM':
