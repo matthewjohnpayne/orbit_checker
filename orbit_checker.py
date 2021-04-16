@@ -46,18 +46,18 @@ def generate_status_code(assessment_dict):
 
     status_dict = {
         ### 0-99 Numbers    : "Orbit Absent"
-        001  :  "Orbit Absent: No known observations",
-        002  :  "Orbit Absent: Orbfit IOD Failed: N_obs <= 3",
-        009  :  "Orbit Absent: Orbfit IOD Failed: Reason for failure has not been established",
-        099  :  "Orbit Absent: Reason for absence has not been established",
+        '001'  :  "Orbit Absent: No known observations",
+        '002'  :  "Orbit Absent: Orbfit IOD Failed: N_obs <= 3",
+        '009'  :  "Orbit Absent: Orbfit IOD Failed: Reason for failure has not been established",
+        '099'  :  "Orbit Absent: Reason for absence has not been established",
         ### 100-199 Numbers  : "Orbit Present but Poor"
-        100  : "Orbit Poor:   Short-Arc / Few observations",
-        101  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
-        199  : "Orbit Poor:   Reason for poor orbit has not been established",
+        '100'  : "Orbit Poor:   Short-Arc / Few observations",
+        '101'  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
+        '199'  : "Orbit Poor:   Reason for poor orbit has not been established",
         ### 200-299 Numbers  : "Orbit Present and Good"
-        200  : "Good Orbit Exists: Orbit consistent with all observations (no massive outliers)",
-        201  : "Good Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
-        299  : "Good Orbit Exists: As yet unclassified",
+        '200'  : "Good Orbit Exists: Orbit consistent with all observations (no massive outliers)",
+        '201'  : "Good Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
+        '299'  : "Good Orbit Exists: As yet unclassified",
     }
 
     #if assessment_dict['IS_IN_ORBFIT_RESULTS']:
