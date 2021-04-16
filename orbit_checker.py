@@ -40,60 +40,65 @@ import mpc_new_processing_sub_directory as newsub
 
 
 # Codes to define possible orbit/designation "status"
-"""
-status_dict = {
-    ### Negative Numbers: "Not a primary designation"
 
-    ### 0-99 Numbers    : "Orbit Absent"
-    001  :  "Orbit Absent: No known observations",
-    002  :  "Orbit Absent: Orbfit Failed: Insufficient observations exist to form any orbit",
-    009  :  "Orbit Absent: Orbfit Failed: Reason unknown",
-    099  :  "Orbit Absent: Reason for absence has not been established",
+def generate_status_code(assessment_dict):
+    ''' Current status is a little primitive as not all categorization data has been fetched/implemented as yet ... '''
+
+    status_dict = {
+        ### Negative Numbers: "Not a primary designation"
+
+        ### 0-99 Numbers    : "Orbit Absent"
+        001  :  "Orbit Absent: No known observations",
+        002  :  "Orbit Absent: Orbfit IOD Failed: N_obs <= 3",
+        009  :  "Orbit Absent: Orbfit IOD Failed: Reason for failure has not been established",
+        099  :  "Orbit Absent: Reason for absence has not been established",
+        
+        ### 100-199 Numbers  : "Orbit Present but Poor"
+        100  : "Orbit Poor:   Short-Arc / Few observations",
+        101  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
+        199  : "Orbit Poor:   Reason for poor orbit has not been established",
+        
+        ### 200-299 Numbers  : "Orbit Present and Good"
+        200  : "Good Orbit Exists: Orbit consistent with all observations (no massive outliers)",
+        201  : "Good Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
+        299  : "Good Orbit Exists: As yet unclassified",
+    }
+
+    #if assessment_dict['IS_IN_ORBFIT_RESULTS']:
+    #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
+    #                                                                assessment_dict['IS_IN_ORBFIT_RESULTS']   )
     
-    ### 100-199 Numbers  : "Orbit Present but Poor"
-    100  : "Orbit Poor:   Short-Arc / Few observations",
-    101  : "Orbit Poor:   Significant fraction of observations in outlying tracklet: Removal may cause inability to calculate orbit",
-    199  : "Orbit Poor:   Reason for poor orbit has not been established",
+    # --- --- --- If have results of some kind --- --- ---
+
+    # If we have STANDARD ASTEROID results ...
+    if assessment_dict['IS_IN_ORBFIT_RESULTS']:
+        
+        if assessment_dict['HAS_GOOD_QUALITY_DICT']:
+            status = '299'  # "Good Orbit Exists: As yet unclassified",
+
+        elif assessment_dict['HAS_BAD_QUALITY_DICT'] or assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']:
+            status = '199'  # "Orbit Poor:   Reason for poor orbit has not been established",
+
+ 
+
+    # If we have COMET results ...
+    elif assessment_dict['IS_IN_COMET_RESULTS']:
+        status = '099'  #  "Orbit Absent: Reason for absence has not been established",
+
+        # If we have SATELLITE results ...
+    elif assessment_dict['IS_IN_SATELLITE_RESULTS']:
+        status = '099'  #  "Orbit Absent: Reason for absence has not been established",
+
+    # --- --- --- If we have NO results at all --- --- ---
+    elif assessment_dict['HAS_NO_RESULTS']:
+        status = '099'  #  "Orbit Absent: Reason for absence has not been established",
+
+    else:
+        sys.exit('Should not get to this secn...')
     
-    ### 200-299 Numbers  : "Orbit Present and Good"
-    200  : "Orbit Exists: Orbit consistent with all observations (no massive outliers)",
-    201  : "Orbit Exists: Orbit consistent with most observations (one or more tracklets to be dealt with)",
-    299  : "Orbit Exists: As yet unclassified",
-}
-"""
-
-# Alternative way of define possible orbit/designation "status"
-# Need to go back-and-forth with Margaret to define a list of all possible failure modes / metrics / etc
-assessment_dict = {
-
-    # Overall designation status
-    'IS_PRIMARY_UNPACKED_DESIGNATION'   : False,
-
-    # Whether an orbit exists anywhere
-    'IS_IN_ORBFIT_RESULTS'              : False,
-    'IS_IN_COMET_RESULTS'               : False,
-    'IS_IN_SATELLITE_RESULTS'           : False,
-    'HAS_NO_RESULTS'                    : False,
-
-    # If has orbfit results in table, what is overall summary of the "quality-json"
-    'HAS_BAD_QUALITY_DICT'              : False,
-    'HAS_INTERMEDIATE_QUALITY_DICT'     : False,
-    'HAS_GOOD_QUALITY_DICT'             : False,
-
-    # Were there problems running orbfit (I.E. complete failures in start-up / crashes / etc )
-    # NB: Should subsequently flag-up problems with input obs/orbits/other
-    'SUCCESSFUL_ORBFIT_EXECUTION'       : False,
-
-    # Given successful execution, could an orbit of any kind be generated ( even if there are some outliers, or the fit is "weak" )
-    'SUCCESSFUL_ORBIT_GENERATION'       : False,
-
-    # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
-    'HAS_BAD_TRACKLETS'                 : False,
-
-    # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
-    'HAS_WEAK_ORBIT_FIT'                : False,
-
-}
+    assert status in status_dict
+    return status
+    
 
 
 def check_multiple_designations( method = None , size=0 ):
@@ -116,10 +121,10 @@ def check_multiple_designations( method = None , size=0 ):
     if method in ['ALL' ,'RANDOM']:
 
         # --------- SOME ONE-OFF DESIGNATIONS WITH VARIOUS ISSUES. USEFUL WHILE TESTING ---------
-        primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
+        #primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        # primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
+        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
 
         
@@ -150,28 +155,14 @@ def check_multiple_designations( method = None , size=0 ):
     print(f'Checking N={len(primary_designations_array)} designations')
     
     # Cycle through each of the designations and run a check on each designation
-    # Current return is rather primitive
-    results= { desig:check_single_designation( desig , dbConnIDs, dbConnOrbs) for desig in primary_designations_array }
+    for desig in primary_designations_array:
     
-    # Primitive categorization:
-    # - Doing this purely to facilitate having a pretty print-out
-    for value, txt in zip( [-1,1,0,2], ['Missing...', 'Fixed...', 'Poor...', 'Good...'] ):
-        desigs = [k for k,v in results.items() if v == value]
-        print('\n'+txt)
-        print('\tN=',len(desigs))
-        for d in desigs: print(d)
+        status = check_single_designation( desig , dbConnIDs, dbConnOrbs)
         
+        # Write the status values to the database
         
-    # Update field(s) in the primary_objects table
 
 
-def make_designation_dict(unpacked_provisional_designation):
-    return {
-        'unpacked_provisional_designation'  : unpacked_provisional_designation,
-        'packed_provisional_designation'    : mc.unpacked_to_packed_desig(unpacked_provisional_designation),
-        'orbfitname'                        : update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
-    }
-    
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
     '''
     Do a bunch of checks on a single designation
@@ -180,39 +171,69 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     (ii) does not permany many/any db updates
     
     '''
-    # Fucking designations
-    designation_dict = make_designation_dict(unpacked_provisional_designation)
-    
-    # Check whether actually a primary unpacked_provisional_designation
-    # - If being called from a list pulled from the identifications tables, then this step is unnecessary
-    # - But I provide it for safety
-    assessment_dict['IS_PRIMARY_UNPACKED_DESIGNATION'] = dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation)
 
-    # Update the primary_objects table to flag whether we have an orbit in the orbfit-results table
-    # NB(1) : If there is *no* match, then the returned value for orbfit_results_id == False
-    # NB(2) : This is not logically great, should really be checking not in comets, etc,
-    #         but for now, while developing, this is not something to worry about while the comet tble is empty
-    assessment_dict['IS_IN_ORBFIT_RESULTS']        = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
-    assessment_dict['IS_IN_COMET_RESULTS']         = False
-    assessment_dict['IS_IN_SATELLITE_RESULTS']     = False
-    assessment_dict['HAS_NO_RESULTS']              = not assessment_dict['IS_IN_ORBFIT_RESULTS']
+    # Define an assessment-dict to flag the condition of the orbit
+    # (either in the db or as calculated in this routine)
+    assessment_dict = {
+
+        # Overall designation status: Check whether actually a primary unpacked_provisional_designation
+        # - If being called from a list pulled from the identifications tables, then this step is unnecessary
+        # - But I provide it for safety
+        'IS_PRIMARY_UNPACKED_DESIGNATION'   : dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation),
+
+        # Whether an orbit exists anywhere
+        'IS_IN_ORBFIT_RESULTS'              : False,
+        'IS_IN_COMET_RESULTS'               : False,
+        'IS_IN_SATELLITE_RESULTS'           : False,
+        'HAS_NO_RESULTS'                    : False,
+
+        # If has orbfit results in table, what is overall summary of the "quality-json"
+        'HAS_BAD_QUALITY_DICT'              : False,
+        'HAS_INTERMEDIATE_QUALITY_DICT'     : False,
+        'HAS_GOOD_QUALITY_DICT'             : False,
+
+        # Were there problems running orbfit (I.E. complete failures in start-up / crashes / etc )
+        # NB: Should subsequently flag-up problems with input obs/orbits/other
+        'SUCCESSFUL_ORBFIT_EXECUTION'       : False,
+
+        # Given successful execution, could an orbit of any kind be generated ( even if there are some outliers, or the fit is "weak" )
+        'SUCCESSFUL_ORBIT_GENERATION'       : False,
+
+        # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
+        'HAS_BAD_TRACKLETS'                 : False,
+
+        # Are there any obvious outlier tracklets when we run fit (bad tracklet dict)
+        'HAS_WEAK_ORBIT_FIT'                : False,
+        
+        # IF THE IOD FAILED, TRY TO UNDERSTAND WHY ...
+        'HAS_NOBS_LTE_3'                    : False
+        'HAS_NOBS_LTE_10'                   : False
+        'HAS_ARC_LTE_1_DAY'                 : False
+        'HAS_ARC_LTE_2_DAY'                 : False
+        'HAS_NOBS_C51_GTE_5'                : False
+        'HAS_FRAC_C51_GTE_0.5'              : False
+
+    }
+
+    # Fucking designations
+    designation_dict = {
+        'unpacked_provisional_designation'  : unpacked_provisional_designation,
+        'packed_provisional_designation'    : mc.unpacked_to_packed_desig(unpacked_provisional_designation),
+        'orbfitname'                        : update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
+    }
     
-    
-    # Understand the quality of any orbfit-orbit currently in the database ...
-    # - Not clear where we want to be doing this, but while developing I am doing this here ...
-    if assessment_dict['IS_IN_ORBFIT_RESULTS'] :
-        quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
-        assess_quality_dict(quality_dict , assessment_dict)
+    # Assess any extant database-orbit & set flags in assessment_dict
+    assess_quality_of_any_database_orbit(designation_dict, assessment_dict)
 
 
     # If no orbit at all...
-    if assessment_dict['HAS_NO_RESULTS'] :
+    if False : # assessment_dict['HAS_NO_RESULTS'] :
         print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
         # (1) Standard asteroid ...
         if   "C/" not in unpacked_provisional_designation:
-            destination = 'asteroid ' ; print(destination)
+            destination = 'asteroid' ; print(destination)
 
             ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             # (a) Orbfit & Dictionary conversion in one
@@ -240,7 +261,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
         # (2) Comet
         elif "C/" in unpacked_provisional_designation:
-            destination = 'comet '
+            destination = 'comet'
 
             # Orbfit
             assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
@@ -253,36 +274,18 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
         # (3) Satellite
         else:
-            destination = 'satellite '
+            destination = 'satellite'
 
-        
-        
 
         # (4) Save results to the database (only done if we have a useable result ... )
         save_results_to_database( designation_dict, assessment_dict, result_dict , destination = destination )
         
 
-
-    #if assessment_dict['IS_IN_ORBFIT_RESULTS']:
-    #    dbConnOrbs.set_orbfit_results_flags_in_primary_objects( unpacked_provisional_designation ,
-    #                                                                assessment_dict['IS_IN_ORBFIT_RESULTS']   )
-
-
-
-
-    # Primitive categorization
-    if assessment_dict['HAS_NO_RESULTS'] and not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
-        return -1
-    if assessment_dict['HAS_NO_RESULTS'] and assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
-        return 1
-    elif assessment_dict['HAS_BAD_QUALITY_DICT']:
-        return 0
-    else:
-        return 2
+    # Generate status-code & return
+    return generate_status_code()
     
-    
-    
-    
+
+
     
     
     
@@ -373,7 +376,9 @@ def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
 def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir):
     '''
     converting the comet results to dictionaries
-    
+
+    I think I got this code from update_wrapper.py
+
     This needs to be added into the comet code itself
     (or at the very least, as some kind of option afterwards)
     *** THE AGREEMENT WITH FEDERICA IS ...
@@ -387,73 +392,7 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
     ***
     ***(iii) The dictionaries will then be written to the db by a separate peice of code
     
-    But for now, while developing, putting it here
-    
-    heavily following the update_wrapper.py/setup_obj_dicts code ...
-    (1) update_wrapper.update_wrapper returns *result_dict* which comes out of *run_fits*
-    (2) *update_wrapper.run_fits* adds the results of "update_existing_orbits.update_existing_orbits" into an overall result_dict
-    (3) *update_existing_orbits.update_existing_orbits* seems to
-        (a) primarily generate *result_dict* from its own *run_fits*
-        (b) format the results into results_dict using its own *save_fits*
-    (4) (a) *update_existing_orbits.run_fits* is calling orbit_update_psv.main()
-        (b) *update_existing_orbits.save_fits* goes through the results from *update_existing_orbits.run_fits* and creates result_dict[desig]['eq0dict'], result_dict[desig]['rwodict'], etc
     '''
-
-    """
-    # I think I got this code from update_wrapper.py
-    try:
-            obslist = o2d.ades_to_dicts(subdirname+obj_name+'.ades')
-    except:
-            print(desig+' : problem with ADES obs file?')
-            obslist = []
-        try:
-            eq0dict = o2d.fel_to_dict(subdirname+obj_name+'.eq0')
-        except:
-            print(desig+' : problem with starting orbit file (eq0)?')
-            eq0dict = {}
-
-        obj_dicts[desig] = {'obslist':obslist,'eq0dict':eq0dict}
-    """
-    
-    """
-    # update_existing_orbits.save_fits()
-    def save_fits(arg_dict,result_dict,datadicts):
-
-    # write orbits/.rwo to database; write orbits/obs to flat files
-
-    subdirname = arg_dict['subdirname']
-    primdesiglist = arg_dict['primdesiglist']
-    obs_dir = subdirname+arg_dict['obs_dir']
-    elements_dir = subdirname+arg_dict['elements_dir']
-    proc_subdir = arg_dict['proc_subdir']
-    mpecfiles_dir = subdirname+arg_dict['mpecfiles_dir']
-    queue_name = arg_dict['queue_name']
-
-    fit_count = 0
-
-    # excise faulty fits from list of fitted objects; write remaining obs/orbits to database
-    datadicts = [datadict for datadict in datadicts if not (datadict['num_obs']==0 and datadict['num_obs_selected']==0 and datadict['num_rad']==0 and datadict['num_rad_selected']==0)]
-    for datadict in datadicts:
-        desig = datadict['packed_provisional_id']
-        try:
-            orbfitname = packeddes_to_orbfitdes(desig)
-            result_dict[desig]['eq0dict'] = o2d.fel_to_dict(elements_dir+orbfitname+'.eq0_postfit',allcoords=True)
-            result_dict[desig]['eq1dict'] = o2d.fel_to_dict(elements_dir+orbfitname+'.eq1_postfit',allcoords=True)
-            result_dict[desig]['rwodict'] = o2d.rwo_to_dict(obs_dir+orbfitname+'.rwo')
-            if desig in result_dict['badtrkdict'].keys():
-                result_dict[desig]['badtrkdict'] = result_dict['badtrkdict'][desig]
-                result_dict[desig]['fit_status'] = str(len(result_dict['badtrkdict'][desig]))+' bad tracklet(s)'
-            else:
-                result_dict[desig]['fit_status'] = 'no problems'
-            fit_count += 1
-        except:
-            print(desig+' : issues with elements/rwo files')
-
-    result_dict['saver'] = 'elements and rwo converted to dictionaries for '+str(fit_count)+' objects'
-
-    return arg_dict, result_dict
-    
-    """
     
     result_dict = {}
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
@@ -500,52 +439,76 @@ def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, pr
 
 # ------------------ GENERIC RESULTS ASSESSMENT  -----------------------------------------------
 
-def assess_quality_dict(quality_dict , assessment_dict):
-    """ At present this is just setting one of the following booleans in the assessment_dict ...
-        'HAS_BAD_QUALITY_DICT'            : False,
-        'HAS_INTERMEDIATE_QUALITY_DICT'   : False,
-        'HAS_GOOD_QUALITY_DICT'           : False,
+def assess_quality_of_any_database_orbit(designation_dict , assessment_dict):
     """
+    At present this is just setting one booleans in the assessment_dict ...
+    """
+    unpacked_provisional_designation = designation_dict['unpacked_provisional_designation']
     
-    # Things to loop through
-    expected_topline_keys = ["mid_epoch","std_epoch"]
-    problems_A  = ["no orbit"]
-    problems_B  = ["no CAR covariance", "no COM covariance"]
-
-    #Default is "good"
-    assessment_dict['HAS_BAD_QUALITY_DICT']            = False
-    assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
-    assessment_dict['HAS_GOOD_QUALITY_DICT']           = True
-
+    # ----------- (1) Check the database for any extant orbfit results ---------------
+    
+    # NB(1) : If there is *no* match, then the returned value for orbfit_results_id == False
+    assessment_dict['IS_IN_ORBFIT_RESULTS']        = dbConnOrbs.has_orbfit_result(unpacked_provisional_designation)
+    assessment_dict['IS_IN_COMET_RESULTS']         = False
+    assessment_dict['IS_IN_SATELLITE_RESULTS']     = False
+    assessment_dict['HAS_NO_RESULTS']              = not ( assessment_dict['IS_IN_ORBFIT_RESULTS'] or assessment_dict['IS_IN_COMET_RESULTS'] or assessment_dict['IS_IN_SATELLITE_RESULTS'] )
+    
+    
         
-    # Severe problems
-    for problem in problems_A:
-        # Loop through the different epoch-keys, examining the message-string for each
-        for k in expected_topline_keys:
-            message_string = quality_dict[k]
-            if problem in message_string:
-                assessment_dict['HAS_BAD_QUALITY_DICT']            = True
-                assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
-                assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
-                return
-                
-    # Intermediate problems
-    for problem in problems_B:
-        # Loop through the different epoch-keys, examining the message-string for each
-        for k in expected_topline_keys:
-            message_string = quality_dict[k]
-            if problem in message_string:
-                assessment_dict['HAS_BAD_QUALITY_DICT']            = False
-                assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = True
-                assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
-                return
-    # return
-    return
+    # ------------- (2) Assess the quality of any results that exist in the database --
+    if assessment_dict['IS_IN_ORBFIT_RESULTS'] :
+    
+        quality_dict = dbConnOrbs.get_quality_json(unpacked_provisional_designation)
+        
+        # Things to loop through
+        expected_topline_keys = ["mid_epoch","std_epoch"]
+        problems_A  = ["no orbit"]
+        problems_B  = ["no CAR covariance", "no COM covariance"]
+
+        # Default is "good"
+        assessment_dict['HAS_BAD_QUALITY_DICT']            = False
+        assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
+        assessment_dict['HAS_GOOD_QUALITY_DICT']           = True
+
+            
+        # Severe problems
+        for problem in problems_A:
+            # Loop through the different epoch-keys, examining the message-string for each
+            for k in expected_topline_keys:
+                message_string = quality_dict[k]
+                if problem in message_string:
+                    assessment_dict['HAS_BAD_QUALITY_DICT']            = True
+                    assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = False
+                    assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
+                    return
+                    
+        # Intermediate problems
+        for problem in problems_B:
+            # Loop through the different epoch-keys, examining the message-string for each
+            for k in expected_topline_keys:
+                message_string = quality_dict[k]
+                if problem in message_string:
+                    assessment_dict['HAS_BAD_QUALITY_DICT']            = False
+                    assessment_dict['HAS_INTERMEDIATE_QUALITY_DICT']   = True
+                    assessment_dict['HAS_GOOD_QUALITY_DICT']           = False
+                    return
+        # return
+        return
+  
+    elif assessment_dict['IS_IN_COMET_RESULTS'] :
+        sys.exit('Assessment not in place for IS_IN_COMET_RESULTS ...')
+    elif assessment_dict['IS_IN_SATELLITE_RESULTS'] :
+        sys.exit('Assessment not in place for IS_IN_SATELLITE_RESULTS ...')
+    elif assessment_dict['HAS_NO_RESULTS'] :
+        return
+    else:
+        sys.exit('Should be impossible to get here...')
+
     
     
 def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_DICT_ORIGIN = 'Pan'):
     """
-        Assess the results in dictionaries from orbfit
+        Assess the results in the dictionaries that were constructed from the orbfit flat-files
         Store assessment in assessment_dict
     """
     
@@ -584,6 +547,9 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
         if not internal['SUCCESSFUL_ORBFIT_EXECUTION'] and packed in result_dict and not result_dict[packed]['INPUT_GENERATION_SUCCESS']:
             internal.update(result_dict[packed])
 
+
+
+
     # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER, THERE IS NOT MUCH PRE-POPULATED INFORMATION ----------
     elif RESULT_DICT_ORIGIN == 'Payne' :
     
@@ -600,21 +566,38 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
         sys.exit('Unknown RESULT_DICT_ORIGIN:', RESULT_DICT_ORIGIN)
 
 
-    # Update the assessment_dict with the internal results ...
+
+
+
+    # -------- Update the assessment_dict with the internal results --------
     assessment_dict.update(internal)
     
     return
     
-# ------------------ SAVE RESULTSs -----------------------------------------------
+    
+
+# ------------------ SAVE RESULTS -----------------------------------------------
 
 def save_results_to_database(designation_dict, assessment_dict, result_dict , destination = 'asteroid'):
-    ''' Save results to table(s) ...'''
+    '''
+    Save results to table(s) ...
+    Also evaluates the status of whatever it has just written ...
+    '''
+    assert destination in ['satellite','comet','asteroid']
+    
     if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
         packed = designation_dict['packed_provisional_designation']
         if packed in result_dict:
-            print('*** Saving results to db ... *** ')
-            # Call the code to insert the results into the database
-            to_db.main( [packed] , filedictlist=[result_dict[packed]] )
+        
+            try:
+                # Call the code to insert the results into the database
+                to_db.main( [packed] , filedictlist=[result_dict[packed]] )
+                
+                # Assess any extant database-orbit & set flags in assessment_dict
+                assess_quality_of_any_database_orbit(designation_dict, assessment_dict)
+                                
+            except Exception as e:
+                print('An Exception occured in save_results_to_database but I am continuing ...\n\t', e)
 
 if __name__ == '__main__':
     check_multiple_designations(method = 'ALL' , size=100 )
