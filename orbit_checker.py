@@ -156,7 +156,7 @@ def check_multiple_designations( method = None , size=0 ):
         status = check_single_designation( desig , dbConnIDs, dbConnOrbs)
         
         # Write the status values to the database
-        print('\t status=', status)
+        print('\t', desig, ' : status=', status)
 
 
 def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
@@ -596,4 +596,4 @@ def save_results_to_database(designation_dict, assessment_dict, result_dict , db
                 print('An Exception occured in save_results_to_database but I am continuing ...\n\t', e)
 
 if __name__ == '__main__':
-    check_multiple_designations(method = 'ALL' , size=100 )
+    check_multiple_designations(method = 'RANDOM' , size=10 )
