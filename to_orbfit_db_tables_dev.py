@@ -459,7 +459,7 @@ def main(   primdesiglist,
                 continue
 
         # construct quality dictionary
-        print('...')
+        print('...filedict...')
         for k,v in filedict.items(): print(k,v)
         print('...')
         qualitydict = check_quality(filedict,file_list)
