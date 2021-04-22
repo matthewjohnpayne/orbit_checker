@@ -356,10 +356,14 @@ def save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None):
             
         # Upsert dictionaries into database
         db.upsert(result_dict_to_upsert, orbit_type)
-    except:
-        SUCCESS = False
         
-    return SUCCESS
+        SUCCESS = True
+        
+    except Exception as e:
+        SUCCESS = False
+        print('Exception....\n', e)
+        
+    return SUCCESS,
   
 def single_orbfit_directory_to_database(
             orbfitname,
@@ -396,7 +400,7 @@ def single_orbfit_directory_to_database(
     
     # Load the dictionaries into the database
     if SUCCESS:
-        SUCCESS = save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None)
+        SUCCESS = save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=db)
             
     # might be useful to also return the result-dict
     return SUCCESS, result_dict_to_upsert
