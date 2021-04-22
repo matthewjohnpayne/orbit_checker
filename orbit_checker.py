@@ -250,6 +250,9 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
                 # NB: Extracting the single-object part of the dictionary Margaret's code returns ...
                 #SUCCESS = to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination_table, db=dbConnUpdateOrbs)
                 #print('writing ... SUCCESS = ', SUCCESS)
+                print('...')
+                for k,v in result_dict.steps(): print(k,v)
+                print('...')
                 to_db.main( [designation_dict['packed_provisional_designation']] , filedictlist=[result_dict] )
                 
             # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
