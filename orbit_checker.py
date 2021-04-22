@@ -38,7 +38,6 @@ sys.path.insert(0,'/sa/orbit_utils/')
 import iod_wrapper_mjp as iod
 import comet_orbits_mjp as comet
 
-sys.path.insert(0,'/home/mpayne/orbit_checker/')
 import to_orbfit_db_tables_dev as to_db
 
 import mpc_new_processing_sub_directory as newsub
