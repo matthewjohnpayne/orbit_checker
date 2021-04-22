@@ -142,9 +142,9 @@ def load_orbfit_files(desig,file_list,count_dict,feldir='neofitels/',obsdir='res
     filedict = {}
     objname = packeddes_to_orbfitdes(desig)
 
-    extlists = [['eq0','eq0_postfit'],['eq1','eq1_postfit'],['eq2','eq2_postfit'],['eq3','eq3_postfit']]
-    exts = ['.eq0_postfit','.eq1_postfit','.eq2_postfit','.eq3_postfit']
-    extkeys = ['eq0','eq1','eq2','eq3']
+    extlists    = [['eq0','eq0_postfit'],['eq1','eq1_postfit'],['eq2','eq2_postfit'],['eq3','eq3_postfit']]
+    exts        = ['.eq0_postfit','.eq1_postfit','.eq2_postfit','.eq3_postfit']
+    extkeys     = ['eq0','eq1','eq2','eq3']
 
     for ind in range(len(exts)):
 
@@ -170,6 +170,7 @@ def load_orbfit_files(desig,file_list,count_dict,feldir='neofitels/',obsdir='res
 
     return filedict,count_dict
     
+    
 def load_supplied_dict(resultdict, count_dict) :
     '''
         New routine by MJP to allow direct input of dictionaries (rather than file read)
@@ -181,7 +182,7 @@ def load_supplied_dict(resultdict, count_dict) :
         --------
         resultdict: dictionary
          - Must contain keys: ['fit_status','eq0dict','eq1dict','rwodict']
-         - Corresponding values must be of type [str, dictt, dict, dict]
+         - Corresponding values must be of type [str, dict, dict, dict]
          
         Returns
         -------
@@ -207,16 +208,16 @@ def load_supplied_dict(resultdict, count_dict) :
     
     
 
-def dict_to_insert(desig,filedict,qualitydict,addpardict=None):
+def dict_to_insert(packed,filedict,qualitydict,addpardict=None):
 
     # construct dictionary to be inserted to orbfit_results
 
     result = {}
 
-    result['packed_primary_provisional_designation'] = desig
-    result['unpacked_primary_provisional_designation'] = mc.packed_to_unpacked_desig(desig)
-    result['rwo_json'] = json.dumps(filedict['rwodict'])
-    result['quality_json'] = json.dumps(qualitydict)
+    result['packed_primary_provisional_designation']    = packed
+    result['unpacked_primary_provisional_designation']  = mc.packed_to_unpacked_desig(desig)
+    result['rwo_json']                                  = json.dumps(filedict['rwodict'])
+    result['quality_json']                              = json.dumps(qualitydict)
 
     if 'eq0dict' in filedict.keys():
         result['mid_epoch_json'] = json.dumps(filedict['eq0dict'])
@@ -275,6 +276,130 @@ def check_fel_quality(feldict):
 
 
 
+######################
+# Conversion function(s) ...
+def orbfit_ff_to_dict( orbfitname , processing_directory):
+    '''
+    Convert the orbfit results in processing_directory to standardized dictionaries
+    *** VERY VERY SIMILAR TO load_orbfit_files ABOVE ***
+    *** (RE)WRITTEN BY MJP FOR THE SAKE OF ... *********
+    *** 1) UNDERSTANDING THE CODE IN load_orbfit_files *
+    *** 2) MAKING A SINGLE-OBJECT SPECIFIC VERSION *****
+    
+    inputs:
+    -------
+    orbfitname: string
+    - assume Orbfit names are unpacked w/o spaces/punctuation
+
+    processing_directory:
+    - top line directory in which the orbfit output files were stored
+    - expect it to contain the following structure ...
+        processing_directory/orbfitname/epoch
+        processing_directory/orbfitname/mpcobs
+
+    returns:
+    --------
+    SUCCESS:        Boolean
+    upload_dict:    Dictionary
+
+    '''
+
+    # dict to store results in
+    result_dict     = { }
+
+    try:
+
+        # output files that could/should exist in the processing directory
+        eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
+        rwo_file         = '.rwo'
+
+        # check the directory structure
+        assert os.path.isdir( proc_dir )
+        assert os.path.isdir( os.path.join(proc_dir , orbfitname ) )
+        assert os.path.isdir( os.path.join(proc_dir , orbfitname , 'epoch') )
+        assert os.path.isdir( os.path.join(proc_dir , orbfitname , 'mpcorb') )
+
+        # Read the eq* files
+        file_list = []
+        for f in eq_filelist :
+          filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
+          if os.path.isfile(filepath):
+            result_dict[f + 'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
+            file_list.append(f)
+                    
+        # Read the rwo file
+        filepath                 = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
+        if os.path.isfile(filepath):
+            result_dict['rwodict']   = o2d.rwo_to_dict(filepath)
+                
+        # Construct quality dictionary
+        qualitydict = check_quality(result_dict, file_list)
+
+        # construct upsert dictionary
+        if filedict:
+            packed      = update_existing_orbits.orbfitdes_to_packeddes(orbfitname)
+            upload_dict = dict_to_insert(packed, result_dict, qualitydict, addpardict=addpardict)
+
+        SUCCESS = True
+
+    except Exception as e:
+        upload_dict['failedfits'] = {'error': e}
+        SUCCESS = False
+
+    return SUCCESS, upload_dict
+    
+
+def save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None):
+    try:
+        # Establish connection to the database if not passed-in
+        db = DBConnect() if db is None else db
+            
+        # Upsert dictionaries into database
+        db.upsert(result_dict_to_upsert, orbit_type)
+    except:
+        SUCCESS = False
+        
+    return SUCCESS
+  
+def single_orbfit_directory_to_database(
+            orbfitname,
+            processing_directory,
+            orbit_type
+            db=None):
+    '''
+    Generates dictionaries from orbfit output files for a single orbfit orbit-fit
+    Stores in specified orbit table
+    
+    inputs:
+    -------
+    orbfitname              : string
+    - assume Orbfit names are unpacked w/o spaces/punctuation
+        
+    processing_directory    : string
+    - top line directory in which the orbfit output files were stored
+    - expect it to contain the following structure ...
+        processing_directory/orbfitname/epoch
+        processing_directory/orbfitname/mpcobs
+        
+    orbit_type:             : string
+    - type of orbit => destination table(s) for orbit
+    - must be one of ['asteroid','comet','satellite]
+    
+    returns:
+    --------
+    SUCCESS:    Boolean
+    
+    '''
+        
+    # Convert the flat-files to dictionaries
+    SUCCESS, result_dict_to_upsert = orbfit_ff_to_dict( orbfitname , processing_directory)
+    
+    # Load the dictionaries into the database
+    if SUCCESS:
+        SUCCESS = save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None)
+            
+    # might be useful to also return the result-dict
+    return SUCCESS, result_dict_to_upsert
 
 
 

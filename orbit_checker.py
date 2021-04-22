@@ -34,6 +34,10 @@ import update_wrapper
 import update_existing_orbits
 import orbfit_to_dict as o2d
 
+sys.path.insert(0,'/sa/orbit_utils/')
+import iod_wrapper_mjp as iod
+import comet_orbits_mjp as comet
+
 import to_orbfit_db_tables_dev as to_db
 
 import mpc_new_processing_sub_directory as newsub
@@ -120,11 +124,11 @@ def check_multiple_designations( method = None , size=0 ):
         #primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        #primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
+        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
 
         
-        
+        '''
         print("\n... Searching db for all primary designations ... ")
         primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
         
@@ -134,7 +138,7 @@ def check_multiple_designations( method = None , size=0 ):
             "A" != d['unpacked_primary_provisional_designation'][0] and \
             d['unpacked_primary_provisional_designation'] not in ['2014 QT388','2019 FH14'] and \
             d['unpacked_primary_provisional_designation'][-3:] != " PL" ] )
-        
+        '''
         
     # Choose a random subset
     if method == 'RANDOM':
@@ -218,63 +222,65 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         'orbfitname'                        : update_existing_orbits.packeddes_to_orbfitdes(mc.unpacked_to_packed_desig(unpacked_provisional_designation))
     }
     
-    # Assess any extant database-orbit & set flags in assessment_dict
+    # (1) Assess any extant database-orbit & set flags in assessment_dict
     assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
 
 
-    # If no orbit at all...
+    # (2) If no orbit at all, do orbit fit
     if False : # assessment_dict['HAS_NO_RESULTS'] :
         print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
-        # (1) Standard asteroid ...
-        if   "C/" not in unpacked_provisional_designation:
+        # Standard asteroid ...
+        if   "/" not in unpacked_provisional_designation:
             destination = 'asteroid' ; print(destination)
 
-            ##result_dict = call_orbfit_via_commandline_update_wrapper(unpacked_provisional_designation)
             # (a) Orbfit & Dictionary conversion in one
             print("\t*"*3,"Standard Orbit Fit ...")
             result_dict = direct_call_orbfit_update_wrapper(unpacked_provisional_designation)
             
             # (b) Evaluate the result from the orbfit run & assign a status
-            assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'Pan' )
-
-            # (c) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
+            assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'EXTENSION' )
+        
+            # (c) Save results to the database (only done if we have a useable result ... )
+            if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
+                # NB: Extracting the single-object part of the dictionary Margaret's code returns ...
+                to_db.save_result_dict_to_db( result_dict_to_upsert[designation_dict['packed_provisional_designation']], destination, db=dbConnOrbs)
+        
+            # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if  not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and \
                 not assessment_dict['INPUT_GENERATION_SUCCESS'] and \
                 assessment_dict['enough_obs'] and \
                 not assessment_dict['existing_orbit']:
         
-                # IOD
-                print("\t*"*3,"IOD ...")
-                assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir   = direct_call_IOD(designation_dict)
-                
-                if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
-                    # Convert
-                    result_dict     = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
-                    # Assess
-                    assess_result_dict(designation_dict , result_dict , assessment_dict, RESULT_DICT_ORIGIN = 'Payne' )
+                # Call IOD (results returned as  dictionaries)
+                assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , result_dict   = direct_call_IOD(designation_dict, destination)
+                # Assess IOD results
+                assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'IOD' )
+                # Save IOD results to db
+                if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
+                    to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnOrbs)
+                    
+            # (e) (Re)Assess result written to db
+            if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
+                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
 
-        # (2) Comet
+        # Comet
         elif "C/" in unpacked_provisional_designation:
             destination = 'comet'
 
             # Orbfit
-            assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , proc_dir  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
+            assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] , result_dict  = direct_call_orbfit_comet_wrapper(designation_dict, FORCEOBS80=False )
+            # Assess IOD results
+            assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'COMET' )
+            # Save comet results to db
+            if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
+                to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnOrbs)
 
-            # Convert results from files to dictionaries (only done if possible)
-            result_dict = convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir)
-            
-            # Assess
-            assess_result_dict(designation_dict , result_dict , assessment_dict)
-
-        # (3) Satellite
+        # (2c) Satellite
         else:
             destination = 'satellite'
 
-
-        # (4) Save results to the database (only done if we have a useable result ... )
-        save_results_to_database( designation_dict, assessment_dict, result_dict , dbConnOrbs, destination = destination )
         
 
     # Generate status-code & return
@@ -316,7 +322,41 @@ def direct_call_orbfit_update_wrapper(unpacked_provisional_designation):
     
 # -------------------- IOD ---------------------------------------------------------
 
-def direct_call_IOD( designation_dict ):
+
+def direct_call_IOD( designation_dict , destination):
+    """
+    # Attempt to fit the orbit using the "orbit_pipeline_wrapper"
+    
+    NB Will automatically attempt to write to db if successful
+    """
+    
+    # Set up the DEFAULT arguments
+    # (NB I am changing some of them to default to what I want for this orbit_checking code)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-trksub","--trksub", help="Provide asteroid trksub or provisional designation", type=str, default=designation_dict['orbfitname']) ### *** CHANGED DEFAULT *** ###
+    parser.add_argument("-istrksub", "--istrksub", help="Is it a trksub?", type=str, choices=['Y','N'], default="N") ### *** CHANGED DEFAULT *** ###
+    parser.add_argument("-c",   "--center",    help="Choose Gravity Center: H(Heliocentric)/P(Planet): default='H': Planet: 1=Mercury,...,8=Neptune",type=str, choices=['H', 'P'],default="H")
+    parser.add_argument("-o80", "--obs80",     help="Observations in the 80-col format: default = False", default="ades")
+    parser.add_argument("-orb", "--orbit",     help="Preliminary orbit to be used: default = False", default=False)
+    parser.add_argument("-p",   "--plot",      help="Make analysis plots: default = False", action="store_true")
+    parser.add_argument("-v",   "--verbose",   help="Make output verbose: default = True",  action="store_false")
+    parser.add_argument("-d",   "--directory", help="Directory to be used", default=' ')
+    parser.add_argument("-neocp", "--neocp", help="NEOCP object", default='N') ### *** CHANGED DEFAULT *** ###
+    parser.add_argument("-obsfile", "--obsfile", help="Use an obs file instead of the database", default='N')
+    parser.add_argument("-w",   "--write_to_db", help="Attempt to write to db if successful", action="store_false")### *** CHANGED DEFAULT *** ###
+    parser.add_argument("-ot",  "--orbit_type", help="type of orbit & hence destination in db of orbit that is being written.", type=str, choices=['asteroid','comet','satellite'], default=destination)### *** CHANGED DEFAULT *** ###
+
+    args = parser.parse_args()
+        
+    # Run the fitting wrapper ...
+    proc_dir            = newsub.generate_subdirectory( 'iod' )
+    done, results_dict  = iod.manage_tracklet_fitting(args, proc_dir )
+    SUCCESS = True if done === 0 else False
+    
+    return SUCCESS, results_dict
+
+"""
+def command_line_call_IOD( designation_dict ):
     ''' FS's IOD code  '''
 
     # Set up the tmp-proc-dir
@@ -324,7 +364,7 @@ def direct_call_IOD( designation_dict ):
 
     # Run the fit
     command = f"python3 /sa/orbit_utils/neocp_wrapper.py {designation_dict['orbfitname']} --istrksub 'N' --neocp 'N' --directory {proc_dir}"
-    print('Trying IOD using command ...\n', command )
+    print('\nTrying IOD using command ...\n', command )
     process = subprocess.Popen( command,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
@@ -332,15 +372,44 @@ def direct_call_IOD( designation_dict ):
     )
     stdout, stderr = process.communicate()
     stdout = stdout.decode("utf-8").split('\n')
-    #print('*direct_call_IOD* ... stdout:\n', stdout)
 
     # Parse the output to look for the 'success' flag ...
     SUCCESS = True if np.any([ 'Initial return code = 0' in _ for _ in stdout]) else False
     return SUCCESS , proc_dir
 
+"""
+
 # ------------------ COMET ORBIT-FIT -----------------------------------------------
     
 def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
+    ''' Copied from MJP's comet/process_comet.py code '''
+    
+    arg_parser.add_argument('--cmt_desig', help="Provide comet MPC packed designation", type=str, default=designation_dict['packed_provisional_designation'] ) ### *** CHANGED DEFAULT *** ###
+    arg_parser.add_argument('--trksub', dest='trksub', help='Is it a trksub? Y=Yes, N=No', default='N')
+    arg_parser.add_argument('--obsfile', dest='obsfile', help="Observations file to use (file name, DB for database, ades for ADES format)",default='DB')
+    arg_parser.add_argument('--orbit', dest='orbit', help="Preliminary orbit to be used (Y=Yes, N=No or file name)",default='N') ### *** CHANGED DEFAULT *** ###
+    arg_parser.add_argument('--frag', dest='frag', help="Fragment (Y=yes,N=No)", default='N')
+    arg_parser.add_argument('--t_std', dest='t_std', help="Current epoch", default=59200.)
+    arg_parser.add_argument('--nongravs', dest='nongrav', help="Non-gravitational perturbations",choices=['Y','N'],default='N')
+    arg_parser.add_argument('--model', dest='model', help="Non-gravs model: 1=Marsden1973, 2=Yeomans&Chodas, 3=Yabushita", default='1')
+    arg_parser.add_argument('--params', dest='params', help="Non-gravs parameters, 1=A1,A2; 2=A1,A2,A3; 3=A1,A2,A3,DT",default='1')
+    arg_parser.add_argument('--firstobs', dest='firstobs', help="First observation to be used (YYYY/MM/DD)",default='0000/00/00')
+    arg_parser.add_argument('--lastobs', dest='lastobs', help="Last observation to be used (YYYY/MM/DD)",default='0000/00/00')
+    arg_parser.add_argument('--a1ng', dest='a1ng', help='A1 non-gravs if you want to detect DT', default='0.')
+    arg_parser.add_argument('--a2ng', dest='a2ng', help='A2 non-gravs if you want to detect DT', default='0.')
+    arg_parser.add_argument('--a3ng', dest='a3ng', help='A3 non-gravs if you want to detect DT', default='0.')
+    arg_parser.add_argument('--add_obsfile', dest='addobs', help='Add observation file to the obs in the DB', default='N')
+    arg_parser.add_argument('--directory', dest='directory', help="Directory to be used", default=newsub.generate_subdirectory( 'comets' ) )
+    args = parser.parse_args()
+
+    # Run a fit
+    done, results_dict = comet.main(args.cmt_desig,args.trksub,args.obsfile,args.orbit,args.frag,args.t_std,args.nongrav,args.model,args.params,args.firstobs,args.lastobs,args.a1ng,args.a2ng,args.a3ng,args.addobs,args.directory)
+    
+    return SUCCESS , proc_dir
+
+
+"""
+def commandline_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
     ''' Copied from MJP's comet/process_comet.py code '''
     
     # comet code wants packed version ...
@@ -369,67 +438,9 @@ def direct_call_orbfit_comet_wrapper(designation_dict , FORCEOBS80=False):
     
     return SUCCESS , proc_dir
 
-def convert_orbfit_output_to_dictionaries(designation_dict , assessment_dict, proc_dir):
-    '''
-    converting the comet results to dictionaries
+"""
 
-    I think I got this code from update_wrapper.py
 
-    This needs to be added into the comet code itself
-    (or at the very least, as some kind of option afterwards)
-    *** THE AGREEMENT WITH FEDERICA IS ...
-    *** (i) upgrade the comet_orbits.py code to return
-    ***     succ, dict
-    ***     where
-    ***     succ is the current boolean
-    ***     dict is a dictionary of the output that I will add
-    ***
-    ***(ii) She/I will then also need to upgrade the "comet list" wrapper to handle that.
-    ***
-    ***(iii) The dictionaries will then be written to the db by a separate peice of code
-    
-    '''
-    
-    result_dict = {}
-    if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
-        
-        # name of the directory that orbfit stores things in
-        orbfitname       = designation_dict['orbfitname']
-        
-        # For whatever reason, the fit-wrapper returns packed designation, so I'll grudgingly use that
-        packed = designation_dict['packed_provisional_designation']
-        result_dict[packed] =  {}
-
-        # loop through the comet output files that could/should exist in the processing directory
-        eq_filelist      = ['eq0', 'eq1', 'eq2', 'eq3']
-        rwo_file         = '.rwo'
-        
-        # try to read the results files ...
-        try:
-        
-            # Read the eq* files
-            for f in eq_filelist :
-                filepath = os.path.join(proc_dir , orbfitname , 'epoch', orbfitname + '.' + f + '_postfit' )
-                print(os.path.isfile(filepath) , ' : ', filepath)
-                if os.path.isfile(filepath):
-                    result_dict[packed][f + 'dict'] = o2d.fel_to_dict(filepath, allcoords=True)
-                    
-            # Read the rwo file
-            filepath                        = os.path.join(proc_dir , orbfitname , 'mpcobs', orbfitname + rwo_file )
-            print(os.path.isfile(filepath) , ' : ', filepath)
-            result_dict[packed]['rwodict']   = o2d.rwo_to_dict(filepath)
-            
-            # Add an (empty) 'failedfits' element
-            result_dict[packed]['failedfits'] = {}
-            
-        # if we can't read the orbit-files then I am going to label the execution as unsuccessful ...
-        except Exception as e:
-            print('Exception occured while reading files ...\n\t',e)
-            assessment_dict['SUCCESSFUL_ORBIT_GENERATION']=False
-            
-        
-    return result_dict
-    
     
 
 
@@ -546,18 +557,11 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
 
 
 
-    # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER, THERE IS NOT MUCH PRE-POPULATED INFORMATION ----------
+    # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER(S), ... *** NEED TO REWRITE THIS : WHAT CHECKS ARE NECESSARY ??? *** ----------
     elif RESULT_DICT_ORIGIN == 'Payne' :
-    
-        packed = designation_dict['packed_provisional_designation']
-        if  packed in result_dict and \
-            'eq0dict' in result_dict[packed] and \
-            'eq1dict' in result_dict[packed] and \
-            'rwodict' in result_dict[packed]:
-            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = True
-        else:
-            internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False
-            print("\n assess_result_dict \t *** UNSUCCESSFUL EXECUTION *** \n")
+        for k,v in result_dict.keys(): print(k,v)
+        sys.exit('Need to rewrite...')
+        
     else:
         sys.exit('Unknown RESULT_DICT_ORIGIN:', RESULT_DICT_ORIGIN)
 
@@ -572,28 +576,6 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
     
     
 
-# ------------------ SAVE RESULTS -----------------------------------------------
-
-def save_results_to_database(designation_dict, assessment_dict, result_dict , dbConnOrbs, destination = 'asteroid'):
-    '''
-    Save results to table(s) ...
-    Also evaluates the status of whatever it has just written ...
-    '''
-    assert destination in ['satellite','comet','asteroid']
-    
-    if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION']:
-        packed = designation_dict['packed_provisional_designation']
-        if packed in result_dict:
-        
-            try:
-                # Call the code to insert the results into the database
-                to_db.main( [packed] , filedictlist=[result_dict[packed]] )
-                
-                # Assess any extant database-orbit & set flags in assessment_dict
-                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
-                                
-            except Exception as e:
-                print('An Exception occured in save_results_to_database but I am continuing ...\n\t', e)
 
 if __name__ == '__main__':
     check_multiple_designations(method = 'RANDOM' , size=10 )
