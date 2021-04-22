@@ -245,7 +245,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             # (c) Save results to the database (only done if we have a useable result ... )
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
                 # NB: Extracting the single-object part of the dictionary Margaret's code returns ...
-                to_db.save_result_dict_to_db( result_dict_to_upsert[designation_dict['packed_provisional_designation']], destination, db=dbConnOrbs)
+                to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination, db=dbConnOrbs)
         
             # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if  not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and \
