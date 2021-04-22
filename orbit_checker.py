@@ -125,9 +125,9 @@ def check_multiple_designations( method = None , size=0 ):
         #primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        #primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db: Fit selects 52/57 obs: May be useful for understanding bad-tracklets
+        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db: Fit selects 52/57 obs: May be useful for understanding bad-tracklets
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
-        primary_designations_array =  np.array(['2007 FA'])###
+        # primary_designations_array =  np.array(['2007 FA'])###
 
         
         '''
