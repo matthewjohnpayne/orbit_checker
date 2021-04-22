@@ -158,7 +158,7 @@ def check_multiple_designations( method = None , size=0 ):
     # Cycle through each of the designations and run a check on each designation
     for desig in primary_designations_array:
     
-        status = check_single_designation( desig , dbConnQueryIDs, dbConnQueryOrbs)
+        status = check_single_designation( desig , dbConnQueryIDs, dbConnQueryOrbs, dbConnUpdateOrbs)
         
         # Write the status values to the database
         print('\t', desig, ' : status=', status)
