@@ -227,7 +227,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
 
 
     # (2) If no orbit at all, do orbit fit
-    if False : # assessment_dict['HAS_NO_RESULTS'] :
+    if True : # assessment_dict['HAS_NO_RESULTS'] :
         print('\n'*3,'HAS_NO_RESULTS', unpacked_provisional_designation)
 
         
