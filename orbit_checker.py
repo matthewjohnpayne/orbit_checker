@@ -253,7 +253,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
                 print('...')
                 for k,v in result_dict.items(): print(k,v)
                 print('...')
-                to_db.main( [designation_dict['packed_provisional_designation']] , filedictlist=[result_dict] )
+                to_db.main( [designation_dict['packed_provisional_designation']] , filedictlist=[result_dict[designation_dict['packed_provisional_designation']]] )
                 
             # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
             if  not assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] and \
