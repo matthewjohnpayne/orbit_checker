@@ -363,6 +363,7 @@ def save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None):
         SUCCESS = False
         print('Exception....\n', e)
         
+        
     return SUCCESS,
   
 def single_orbfit_directory_to_database(
