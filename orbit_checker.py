@@ -540,6 +540,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
         internal['SUCCESSFUL_ORBFIT_EXECUTION'] = False if 'failedfits' not in result_dict else True
         if internal['SUCCESSFUL_ORBFIT_EXECUTION']:
         
+            for k,v in result_dict.items(): print(k,v)
             # Perhaps it ran but we get an explicit indicate of failure
             # (1) If we see something in failedfits, then this is a failure
             # (2) If we don't see the packed designation in the result then this is a failure
