@@ -112,8 +112,9 @@ def check_multiple_designations( method = None , size=0 ):
     # Setting up connection objects...
     # (i)to PP's ID-Query routines ...
     # (ii) to MJP's Orb-Query routines ...
-    dbConnIDs  = query_ids.QueryCurrentID()
-    dbConnOrbs = query_orbs.QueryOrbfitResults()
+    dbConnQueryIDs   = query_ids.QueryCurrentID()
+    dbConnQueryOrbs  = query_orbs.QueryOrbfitResults()
+    dbConnUpdateOrbs = to_db.DBConnect()
 
 
 
@@ -130,7 +131,7 @@ def check_multiple_designations( method = None , size=0 ):
         
         '''
         print("\n... Searching db for all primary designations ... ")
-        primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        primary_designations_list_of_dicts = dbConnQueryIDs.get_unpacked_primary_desigs_list()
         
         # make into an array
         # filter-out "A" at the start of the designation, as this currently causes packed_to_unpacked_desig to crash
@@ -146,7 +147,7 @@ def check_multiple_designations( method = None , size=0 ):
         
     # Select only comets (for now, while developing, using only C/) s...
     if method == 'COMET':
-        #primary_designations_list_of_dicts = dbConnIDs.get_unpacked_primary_desigs_list()
+        #primary_designations_list_of_dicts = dbConnQueryIDs.get_unpacked_primary_desigs_list()
         #primary_designations_array = np.array( [ _ for _ in primary_designations_array if "C/" in _ ] )
         primary_designations_array = np.random.choice( ['C/2020 K2', 'C/2006 M8', 'C/2010 X6', 'C/2006 Y16', 'C/2000 Y5'] , size=size, replace=False)
 
@@ -157,13 +158,13 @@ def check_multiple_designations( method = None , size=0 ):
     # Cycle through each of the designations and run a check on each designation
     for desig in primary_designations_array:
     
-        status = check_single_designation( desig , dbConnIDs, dbConnOrbs)
+        status = check_single_designation( desig , dbConnQueryIDs, dbConnQueryOrbs)
         
         # Write the status values to the database
         print('\t', desig, ' : status=', status)
 
 
-def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbConnOrbs, FIX=False):
+def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs, dbConnQueryOrbs, dbConnUpdateOrbs, FIX=False):
     '''
     Do a bunch of checks on a single designation
     WIP Code:
@@ -179,7 +180,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
         # Overall designation status: Check whether actually a primary unpacked_provisional_designation
         # - If being called from a list pulled from the identifications tables, then this step is unnecessary
         # - But I provide it for safety
-        'IS_PRIMARY_UNPACKED_DESIGNATION'   : dbConnIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation),
+        'IS_PRIMARY_UNPACKED_DESIGNATION'   : dbConnQueryIDs.is_valid_unpacked_primary_desig(unpacked_provisional_designation),
 
         # Whether an orbit exists anywhere
         'IS_IN_ORBFIT_RESULTS'              : False,
@@ -223,7 +224,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
     }
     
     # (1) Assess any extant database-orbit & set flags in assessment_dict
-    assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
+    assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnQueryOrbs)
 
 
     # (2) If no orbit at all, do orbit fit
@@ -245,7 +246,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             # (c) Save results to the database (only done if we have a useable result ... )
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
                 # NB: Extracting the single-object part of the dictionary Margaret's code returns ...
-                SUCCESS = to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination, db=dbConnOrbs)
+                SUCCESS = to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination, db=dbConnUpdateOrbs)
                 print('writing ... SUCCESS = ', SUCCESS)
                 
             # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
@@ -260,11 +261,11 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
                 assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'IOD' )
                 # Save IOD results to db
                 if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                    to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnOrbs)
+                    to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnUpdateOrbs)
                     
             # (e) (Re)Assess result written to db
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnOrbs)
+                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnUpdateOrbs)
 
         # Comet
         elif "C/" in unpacked_provisional_designation:
@@ -276,7 +277,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnIDs, dbCo
             assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'COMET' )
             # Save comet results to db
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnOrbs)
+                to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnUpdateOrbs)
 
         # (2c) Satellite
         else:
