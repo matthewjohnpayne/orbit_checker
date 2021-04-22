@@ -351,7 +351,7 @@ def direct_call_IOD( designation_dict , destination):
     # Run the fitting wrapper ...
     proc_dir            = newsub.generate_subdirectory( 'iod' )
     done, results_dict  = iod.manage_tracklet_fitting(args, proc_dir )
-    SUCCESS = True if done === 0 else False
+    SUCCESS = True if done == 0 else False
     
     return SUCCESS, results_dict
 
