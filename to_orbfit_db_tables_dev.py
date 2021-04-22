@@ -446,6 +446,7 @@ def main(   primdesiglist,
         # Not really doing anything much, as the data is mainly/totally present in the desired manner ...
         if filedictlist is not None and len(filedictlist) == len(primdesiglist) and isinstance( filedictlist[n] , dict ):
             filedict,count_dict = load_supplied_dict( filedictlist[n] , count_dict)
+            print('HERE')
         else:
             # load orbfit results files into python
             try:
