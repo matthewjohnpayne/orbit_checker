@@ -124,7 +124,7 @@ def check_multiple_designations( method = None , size=0 ):
         #primary_designations_array =  np.array(['2015 XX229'])###, "2015 KX97" cauused some error ...
         # primary_designations_array =  np.array(['2008 WJ19'] )###, "2008 WJ19"  was not in the db & went to IOD & IOD worked & dict inserted !
         # primary_designations_array =  np.array(['2016 QW66'] )###, "2016 QW66"  is not in the db & will go to IOD & IOD will fail
-        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db
+        primary_designations_array =  np.array(['2006 WU224'])###, "2006 WU224" is already in the db: Fit selects 52/57 obs: May be useful for understanding bad-tracklets
         # primary_designations_array =  np.array(['2015 XX229'])###, "2015 XX229" has only 7 obs & no orbit ...
 
         
@@ -513,7 +513,7 @@ def assess_quality_of_any_database_orbit(designation_dict , assessment_dict, dbC
 
     
     
-def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_DICT_ORIGIN = 'Pan'):
+def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_DICT_ORIGIN = 'EXTENSION'):
     """
         Assess the results in the dictionaries that were constructed from the orbfit flat-files
         Store assessment in assessment_dict
@@ -528,8 +528,8 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
         'new_obs_in_db'                 : None
     }
     
-    # -------- IF THE RESULT CAME FROM MARGARET'S WRAPPER, THERE IS A LOT OF PRE-POPULATED INFORMATION ----------
-    if RESULT_DICT_ORIGIN == 'Pan' :
+    # -------- IF THE RESULT CAME FROM MARGARET'S EXTENSION WRAPPER, THERE IS A LOT OF PRE-POPULATED INFORMATION ----------
+    if RESULT_DICT_ORIGIN == 'EXTENSION' :
             
         # For whatever reason, the fit-wrapper returns packed designation
         packed = designation_dict['packed_provisional_designation']
@@ -558,7 +558,7 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
 
 
     # -------- IF THE RESULT CAME FROM PAYNE'S WRAPPER(S), ... *** NEED TO REWRITE THIS : WHAT CHECKS ARE NECESSARY ??? *** ----------
-    elif RESULT_DICT_ORIGIN == 'Payne' :
+    elif RESULT_DICT_ORIGIN in ['IOD','COMET'] :
         for k,v in result_dict.keys(): print(k,v)
         sys.exit('Need to rewrite...')
         
