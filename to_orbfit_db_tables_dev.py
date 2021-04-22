@@ -364,7 +364,7 @@ def save_result_dict_to_db(result_dict_to_upsert, orbit_type, db=None):
 def single_orbfit_directory_to_database(
             orbfitname,
             processing_directory,
-            orbit_type
+            orbit_type,
             db=None):
     '''
     Generates dictionaries from orbfit output files for a single orbfit orbit-fit
