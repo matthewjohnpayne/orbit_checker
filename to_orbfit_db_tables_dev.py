@@ -193,7 +193,9 @@ def load_supplied_dict(resultdict, count_dict) :
          
     '''
     #
-        
+    print('load_supplied_dict')
+    for k,v in filedictlist[n].items(): print(k)
+    print('...')
     # Pass the eq* & rwo dicts directly into "outdict'
     outdict = {}
     try:
@@ -446,9 +448,6 @@ def main(   primdesiglist,
         # Not really doing anything much, as the data is mainly/totally present in the desired manner ...
         if filedictlist is not None and len(filedictlist) == len(primdesiglist) and isinstance( filedictlist[n] , dict ):
             filedict,count_dict = load_supplied_dict( filedictlist[n] , count_dict)
-            print('HERE')
-            for k,v in filedictlist[n].items(): print(k,v)
-            print('...')
         else:
             # load orbfit results files into python
             try:
