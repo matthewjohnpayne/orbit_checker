@@ -265,7 +265,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
                     
             # (e) (Re)Assess result written to db
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnUpdateOrbs)
+                assess_quality_of_any_database_orbit(designation_dict, assessment_dict, dbConnQueryOrbs)
 
         # Comet
         elif "C/" in unpacked_provisional_designation:
