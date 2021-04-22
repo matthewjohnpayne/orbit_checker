@@ -194,7 +194,7 @@ def load_supplied_dict(resultdict, count_dict) :
     '''
     #
     print('load_supplied_dict')
-    for k,v in filedictlist[n].items(): print(k)
+    for k,v in resultdict.items(): print(k)
     print('...')
     # Pass the eq* & rwo dicts directly into "outdict'
     outdict = {}
