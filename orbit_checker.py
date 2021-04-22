@@ -578,4 +578,4 @@ def assess_result_dict(designation_dict , result_dict, assessment_dict, RESULT_D
 
 
 if __name__ == '__main__':
-    check_multiple_designations(method = 'RANDOM' , size=10 )
+    check_multiple_designations(method = 'ALL' , size=10 )
