@@ -234,7 +234,8 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
         
         # Standard asteroid ...
         if   "/" not in unpacked_provisional_designation:
-            destination = 'asteroid' ; print(destination)
+            orbit_type        = 'asteroid' ;
+            destination_table = 'orbfit_results'
 
             # (a) Orbfit & Dictionary conversion in one
             print("\t*"*3,"Standard Orbit Fit ...")
@@ -246,7 +247,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
             # (c) Save results to the database (only done if we have a useable result ... )
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
                 # NB: Extracting the single-object part of the dictionary Margaret's code returns ...
-                SUCCESS = to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination, db=dbConnUpdateOrbs)
+                SUCCESS = to_db.save_result_dict_to_db( result_dict[designation_dict['packed_provisional_designation']], destination_table, db=dbConnUpdateOrbs)
                 print('writing ... SUCCESS = ', SUCCESS)
                 
             # (d) if the init orbit is missing, but there are obs, then might want to try IOD of some sort ...
@@ -261,7 +262,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
                 assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'IOD' )
                 # Save IOD results to db
                 if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                    to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnUpdateOrbs)
+                    to_db.save_result_dict_to_db( result_dict_to_upsert, destination_table, db=dbConnUpdateOrbs)
                     
             # (e) (Re)Assess result written to db
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
@@ -277,7 +278,7 @@ def check_single_designation( unpacked_provisional_designation , dbConnQueryIDs,
             assess_result_dict(designation_dict , result_dict , assessment_dict , RESULT_DICT_ORIGIN = 'COMET' )
             # Save comet results to db
             if assessment_dict['SUCCESSFUL_ORBFIT_EXECUTION'] :
-                to_db.save_result_dict_to_db( result_dict_to_upsert, destination, db=dbConnUpdateOrbs)
+                to_db.save_result_dict_to_db( result_dict_to_upsert, destination_table, db=dbConnUpdateOrbs)
 
         # (2c) Satellite
         else:
