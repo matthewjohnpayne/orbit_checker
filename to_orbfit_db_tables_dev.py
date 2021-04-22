@@ -459,6 +459,9 @@ def main(   primdesiglist,
                 continue
 
         # construct quality dictionary
+        print('...')
+        for k,v in filedict.items(): print(k,v)
+        print('...')
         qualitydict = check_quality(filedict,file_list)
 
         # construct upsert dictionary
